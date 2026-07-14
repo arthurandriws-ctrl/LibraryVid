@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibraryVid - Estatísticas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#0d0d12',
+                        surface: '#15151c',
+                        surfaceBorder: '#272732',
+                        primary: '#8b5cf6',
+                        primaryHover: '#7c3aed',
+                        textMuted: '#9ca3af'
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-white min-h-screen flex flex-col relative">
+
+    <!-- Header (Aba Estatísticas Ativa) -->
+    <header class="border-b border-surfaceBorder bg-background px-8 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-2 text-xl font-bold">
+            <div class="w-8 h-8 bg-primary rounded flex items-center justify-center">
+                <i class="fa-solid fa-play text-white text-sm"></i>
+            </div>
+            LibraryVid
+        </div>
+        <div class="flex bg-surface rounded-md border border-surfaceBorder p-1">
+            <button class="flex items-center gap-2 px-4 py-2 text-textMuted hover:text-white rounded text-sm font-medium transition-colors" href="url_for('index.html')">
+                <i class="fa-solid fa-layer-group"></i> Biblioteca
+            </button>
+            <button class="flex items-center gap-2 px-4 py-2 bg-surfaceBorder rounded text-sm font-medium transition-colors" href="url_for('estatistica.html')">
+                <i class="fa-solid fa-chart-simple"></i> Estatísticas
+            </button>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-8 flex flex-col">
+        <h1 class="text-2xl font-bold mb-1">Estatísticas</h1>
+        <p class="text-sm text-textMuted mb-8">Desempenho da biblioteca por gênero</p>
+
+        <!-- Cards de Métricas Globais (Zerados inicialmente) -->
+        <div class="grid grid-cols-3 gap-6 mb-10">
+            <div class="bg-surface border border-surfaceBorder rounded-xl p-6 text-center flex flex-col justify-center min-h-[120px]">
+                <span class="text-3xl font-bold mb-2">0</span>
+                <span class="text-xs text-textMuted">Total de Vídeos</span>
+            </div>
+            <div class="bg-surface border border-surfaceBorder rounded-xl p-6 text-center flex flex-col justify-center min-h-[120px]">
+                <span class="text-3xl font-bold mb-2">0</span>
+                <span class="text-xs text-textMuted">Total de Votos</span>
+            </div>
+            <div class="bg-surface border border-surfaceBorder rounded-xl p-6 text-center flex flex-col justify-center min-h-[120px]">
+                <span class="text-3xl font-bold mb-2">-</span>
+                <span class="text-xs text-textMuted">Nota Global</span>
+            </div>
+        </div>
+
+        <!-- Seção Por Gênero -->
+        <h2 class="text-sm font-bold mb-4">Por Gênero</h2>
+        
+        <div id="genres-container" class="space-y-6">
+            
+            <!-- Estado Inicial / Placeholder do Design antes de receber os dados de filmes -->
+            <div class="bg-surface border border-surfaceBorder rounded-xl p-6 flex items-center justify-between opacity-40">
+                <div class="flex items-center gap-6 w-full">
+                    <span class="text-textMuted font-bold text-sm">-</span>
+                    <div class="bg-surfaceBorder border border-surfaceBorder text-textMuted px-3 py-1 rounded text-xs font-medium">Nenhum gênero</div>
+                    
+                    <div class="flex items-center gap-8 ml-8 flex-1">
+                        <div>
+                            <div class="text-[10px] text-textMuted uppercase mb-1">Vídeos</div>
+                            <div class="font-bold text-textMuted">-</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-textMuted uppercase mb-1">Votos</div>
+                            <div class="font-bold text-textMuted">-</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-textMuted uppercase mb-1">Média</div>
+                            <div class="font-bold text-textMuted">-</div>
+                        </div>
+                        
+                        <!-- Barra de volume vazia -->
+                        <div class="flex-1 ml-4 mt-4">
+                            <div class="text-[10px] text-textMuted uppercase mb-1">Volume de Votos</div>
+                            <div class="w-full bg-surfaceBorder h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-primary h-full w-0"></div> 
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Estrelas apagadas -->
+                    <div class="flex gap-1 text-surfaceBorder ml-4">
+                        <i class="fa-regular fa-star"></i>
+                        <i class="fa-regular fa-star"></i>
+                        <i class="fa-regular fa-star"></i>
+                        <i class="fa-regular fa-star"></i>
+                        <i class="fa-regular fa-star"></i>
+                        <span class="text-textMuted text-sm ml-1">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- DICA PARA O DESENVOLVIMENTO FUTURO (Template para loop dinâmico):
+            
+            Ao renderizar os dados do backend, utilize a estrutura abaixo para cada gênero classificado:
+
+            <div class="bg-surface border border-surfaceBorder rounded-xl p-6 flex items-center justify-between">
+                <div class="flex items-center gap-6 w-full">
+                    <span class="text-textMuted font-bold text-sm">#1</span>
+                    <div class="bg-red-900/30 border border-red-500/50 text-red-400 px-3 py-1 rounded text-xs font-medium">Gênero</div>
+                    
+                    <div class="flex items-center gap-8 ml-8 flex-1">
+                        <div>
+                            <div class="text-[10px] text-textMuted uppercase mb-1">Vídeos</div>
+                            <div class="font-bold">2</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-textMuted uppercase mb-1">Votos</div>
+                            <div class="font-bold">12</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-textMuted uppercase mb-1">Média</div>
+                            <div class="font-bold">4.5</div>
+                        </div>
+                        
+                        <div class="flex-1 ml-4 mt-4">
+                            <div class="text-[10px] text-textMuted uppercase mb-1">Volume de Votos</div>
+                            <div class="w-full bg-surfaceBorder h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-primary h-full" style="width: 75%;"></div> 
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-1 text-primary ml-4">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-regular fa-star"></i>
+                        <span class="text-textMuted text-sm ml-1">4.0</span>
+                    </div>
+                </div>
+            </div>
+            -->
+
+        </div>
+    </main>
+
+    <!-- Floating Action Button (+) -->
+    <button class="fixed bottom-8 right-8 w-14 h-14 bg-primary hover:bg-primaryHover rounded-full flex items-center justify-center text-white text-xl shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-transform hover:scale-105">
+        <i class="fa-solid fa-plus"></i>
+    </button>
+
+</body>
+</html>
