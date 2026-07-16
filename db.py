@@ -1,15 +1,19 @@
 import mysql.connector
-from sqlalchemy import create_engine, text 
-from sqlalchemy.orm import declarative_base, sessionmaker
+from flask_sqlalchemy import SQLAlchemy
 
+# Instância do SQLAlchemy usada pelos modelos.
+db = SQLAlchemy()
+
+# Conexão direta com mysql.connector, caso precise usar cursor puro.
 def conectar():
-    try: 
+    try:
         return mysql.connector.connect(
             host="localhost",
-            port=3307, 
-            user="root", 
+            port=3307,
+            user="root",
             password="",
             database="libraryvid",
         )
     except mysql.connector.Error:
-        return None 
+        return None
+

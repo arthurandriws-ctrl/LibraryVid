@@ -15,7 +15,7 @@ def analisar_video():
     não assistir caso a nota for ruim.
     
     Dados fornecidos do filme:
-    {dados_filme}
+    {dados_video}
         
     Escreva em português, de forma empática e acessível, e evite Markdown.
     """
