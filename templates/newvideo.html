@@ -39,21 +39,21 @@
             VidLib
         </div>
         <div class="flex bg-surface rounded-md border border-surfaceBorder p-1">
-            <button class="flex items-center gap-2 px-4 py-2 bg-surfaceBorder rounded text-sm font-medium transition-colors">
+            <a href="{{ url_for('homepage') }}" class="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors text-textMuted hover:text-white">
                 <i class="fa-solid fa-layer-group"></i> Biblioteca
-            </button>
-            <button class="flex items-center gap-2 px-4 py-2 text-textMuted hover:text-white rounded text-sm font-medium transition-colors">
+            </a>
+            <a href="{{ url_for('estatisticas') }}" class="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors text-textMuted hover:text-white">
                 <i class="fa-solid fa-chart-simple"></i> Estatísticas
-            </button>
+            </a>
         </div>
     </header>
 
     <!-- Conteúdo Principal -->
     <main class="flex-1 max-w-5xl w-full mx-auto p-8 flex flex-col">
         <div class="flex items-center gap-4 mb-8">
-            <button class="text-textMuted hover:text-white transition-colors">
+            <a href="{{ url_for('homepage') }}" class="text-textMuted hover:text-white transition-colors">
                 <i class="fa-solid fa-arrow-left"></i>
-            </button>
+            </a>
             <h1 class="text-2xl font-bold">Novo Vídeo</h1>
         </div>
 
@@ -85,6 +85,12 @@
                     <option>Drama</option>
                     <option>Comédia</option>
                     <option>Terror</option>
+                    <option>Ação</option>
+                    <option>Ficção Científica</option>
+                    <option>Animação</option>
+                    <option>Aventura</option>
+                    <option>Documentário</option>
+                    <option>Romance</option>
                 </select>
             </div>
 

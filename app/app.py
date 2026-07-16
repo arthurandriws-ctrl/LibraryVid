@@ -13,7 +13,7 @@ def videonovo():
 
 @app.route("/estatisticas")
 def estatisticas():
-    return render_template("estatisticas.html")
+    return render_template("estatistica.html")
 
 if __name__ == '__main__':
     app.run(debug=True)

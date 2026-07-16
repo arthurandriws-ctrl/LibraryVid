@@ -39,12 +39,12 @@
             VidLib
         </div>
         <div class="flex bg-surface rounded-md border border-surfaceBorder p-1">
-            <button class="flex items-center gap-2 px-4 py-2 bg-surfaceBorder rounded text-sm font-medium transition-colors" href="url_for('index.html')">
+            <a href="{{ url_for('homepage') }}" data-route="/" class="nav-link flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors text-textMuted hover:text-white">
                 <i class="fa-solid fa-layer-group"></i> Biblioteca
-            </button>
-            <button class="flex items-center gap-2 px-4 py-2 text-textMuted hover:text-white rounded text-sm font-medium transition-colors" href="url_for('estatistica.html')">
+            </a>
+            <a href="{{ url_for('estatisticas')}}" data-route="/estatisticas" class="nav-link flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors text-textMuted hover:text-white">
                 <i class="fa-solid fa-chart-simple"></i> Estatísticas
-            </button>
+            </a>
         </div>
     </header>
 
@@ -63,9 +63,9 @@
             </div>
             <h2 class="text-2xl font-bold mb-2">Biblioteca vazia</h2>
             <p class="text-textMuted mb-6 max-w-sm">Adicione seu primeiro vídeo e comece a construir sua coleção compartilhada.</p>
-            <button class="bg-primary hover:bg-primaryHover text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors shadow-[0_0_15px_rgba(139,92,246,0.3)]">
+            <a href="{{ url_for('videonovo') }}" class="bg-primary hover:bg-primaryHover text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors shadow-[0_0_15px_rgba(139,92,246,0.3)]">
                 <i class="fa-solid fa-plus"></i> Adicionar primeiro vídeo
-            </button>
+            </a>
         </div>
     </main>
 
@@ -73,6 +73,24 @@
     <button class="fixed bottom-8 right-8 w-14 h-14 bg-primary hover:bg-primaryHover rounded-full flex items-center justify-center text-white text-xl shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-transform hover:scale-105">
         <i class="fa-solid fa-plus"></i>
     </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const links = document.querySelectorAll('.nav-link');
+            const currentPath = window.location.pathname;
+
+            links.forEach(link => {
+                const route = link.getAttribute('data-route');
+                if (route === currentPath) {
+                    link.classList.add('bg-surfaceBorder', 'text-white');
+                    link.classList.remove('text-textMuted');
+                } else {
+                    link.classList.remove('bg-surfaceBorder', 'text-white');
+                    link.classList.add('text-textMuted');
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
