@@ -1,7 +1,14 @@
-from flask import Flask, render_template
+try:
+    from .db import db
+    from .models import Video
+except (ImportError, ValueError):
+    import sys, os
+    sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+    from db import db
+    from models import Video
+
+from flask import Flask, render_template, request, redirect, url_for
 import os
-from db import db 
-import models
 
 app = Flask(__name__, template_folder=os.path.join(os.path.dirname(__file__), "..", "templates"))
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+mysqlconnector://root:@localhost:3307/libraryvid"
@@ -15,11 +22,27 @@ with app.app_context():
 def homepage():
     return render_template("index.html")
 
-#trbalhar no formulário de newvideo, e usar dados_video como variável para ia.py
-@app.route("/newvideo")
+# trabalhar no formulário de newvideo(70% pronto, falta só upload da imagem), e usar dados_video como variável para ia.py
+@app.route("/newvideo", methods=["GET", "POST"])
 def videonovo():
-    return render_template("newvideo.html")
+    if request.method == "POST":
+        titulo = request.form.get("titulo")
+        autor = request.form.get("autor")
+        genero = request.form.get("genero")
+        link = request.form.get("link")
 
+        novo_video = Video(
+            titulo=titulo,
+            autor=autor,
+            genero=genero,
+            link=link,
+        )
+
+        db.session.add(novo_video)
+        db.session.commit()
+        return redirect(url_for("homepage"))
+
+    return render_template("newvideo.html")
 
 @app.route("/estatisticas")
 def estatisticas():

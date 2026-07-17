@@ -56,8 +56,8 @@
             </a>
             <h1 class="text-2xl font-bold">Novo Vídeo</h1>
         </div>
-
-        <form class="max-w-3xl w-full mx-auto space-y-6 pb-12">
+        <!--Formulário do tipo Post pois estou "cadastrando" um filme, ou seja, enviando dados para o servidor-->
+        <form action="" method="post" class="max-w-3xl w-full mx-auto space-y-6 pb-12">
             <!-- Upload de Capa -->
             <div>
                 <label class="block text-xs font-bold text-textMuted uppercase mb-2">Imagem de Capa</label>
@@ -71,17 +71,17 @@
             <!-- Inputs -->
             <div>
                 <label class="block text-xs font-bold text-textMuted uppercase mb-2">Título *</label>
-                <input type="text" placeholder="Nome do vídeo" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary">
+                <input name="titulo" type="text" placeholder="Nome do vídeo" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary">
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-textMuted uppercase mb-2">Autor / Criador *</label>
-                <input type="text" placeholder="Canal ou nome do criador" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary">
+                <input name = "autor" type="text" placeholder="Canal ou nome do criador" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary">
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-textMuted uppercase mb-2">Gênero</label>
-                <select class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary appearance-none">
+                <select name="genero" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary appearance-none">
                     <option>Drama</option>
                     <option>Comédia</option>
                     <option>Terror</option>
@@ -96,7 +96,7 @@
 
             <div>
                 <label class="block text-xs font-bold text-textMuted uppercase mb-2">Link do Vídeo *</label>
-                <input type="url" placeholder="https://..." class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary">
+                <input name="link" type="url" placeholder="https://..." class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary">
             </div>
 
             <div>
