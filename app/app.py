@@ -8,6 +8,7 @@ except (ImportError, ValueError):
     from models import Video
 
 from flask import Flask, render_template, request, redirect, url_for
+from sqlalchemy import or_
 import os
 
 app = Flask(__name__, template_folder=os.path.join(os.path.dirname(__file__), "..", "templates"))
@@ -47,6 +48,22 @@ def videonovo():
 @app.route("/estatisticas")
 def estatisticas():
     return render_template("estatistica.html")
+
+
+@app.route('/search')
+def search():
+    q = request.args.get('q', '').strip()
+    if not q:
+        return redirect(url_for('homepage'))
+
+    results = Video.query.filter(
+        or_(
+            Video.titulo.ilike(f"%{q}%"),
+            Video.autor.ilike(f"%{q}%")
+        )
+    ).all()
+
+    return render_template('resultados.html', query=q, results=results)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -51,10 +51,10 @@
     <!-- Conteúdo Principal -->
     <main class="flex-1 max-w-5xl w-full mx-auto p-8 flex flex-col">
         <!-- Search Bar -->
-        <div class="relative w-full mb-20">
+        <form action="{{ url_for('search') }}" method="get" class="relative w-full mb-20">
             <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-textMuted"></i>
-            <input type="text" placeholder="Buscar por título ou autor..." class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 pl-10 pr-4 text-sm focus:outline-none focus:border-primary transition-colors text-white placeholder-textMuted">
-        </div>
+            <input name="q" type="text" placeholder="Buscar por título ou autor..." value="{{ request.args.get('q', '') }}" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 pl-10 pr-4 text-sm focus:outline-none focus:border-primary transition-colors text-white placeholder-textMuted">
+        </form>
 
         <!-- Empty State -->
         <div class="flex-1 flex flex-col items-center justify-center text-center">
