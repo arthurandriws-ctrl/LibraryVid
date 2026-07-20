@@ -21,7 +21,8 @@ with app.app_context():
     
 @app.route("/")
 def homepage():
-    return render_template("index.html")
+    videos = Video.query.order_by(Video.id.desc()).all()
+    return render_template("index.html", videos=videos)
 
 # trabalhar no formulário de newvideo(70% pronto, falta só upload da imagem), e usar dados_video como variável para ia.py
 @app.route("/newvideo", methods=["GET", "POST"])
