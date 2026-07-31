@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VidLib - Editar Vídeo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#0d0d12',
+                        surface: '#15151c',
+                        surfaceBorder: '#272732',
+                        primary: '#8b5cf6',
+                        primaryHover: '#7c3aed',
+                        textMuted: '#9ca3af'
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-white min-h-screen flex flex-col relative">
+
+    <!-- Header -->
+    <header class="border-b border-surfaceBorder bg-background px-8 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-2 text-xl font-bold">
+            <div class="w-8 h-8 bg-primary rounded flex items-center justify-center">
+                <i class="fa-solid fa-play text-white text-sm"></i>
+            </div>
+            VidLib
+        </div>
+        <div class="flex bg-surface rounded-md border border-surfaceBorder p-1">
+            <a href="{{ url_for('homepage') }}" class="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors text-textMuted hover:text-white">
+                <i class="fa-solid fa-layer-group"></i> Biblioteca
+            </a>
+            <a href="{{ url_for('estatisticas') }}" class="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors text-textMuted hover:text-white">
+                <i class="fa-solid fa-chart-simple"></i> Estatísticas
+            </a>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-8 flex flex-col">
+        <div class="flex items-center gap-4 mb-8">
+            <a href="{{ url_for('homepage') }}" class="text-textMuted hover:text-white transition-colors">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <h1 class="text-2xl font-bold">Editar Vídeo</h1>
+        </div>
+        
+        <form action="{{ url_for('editar_video', video_id=video.id) }}" method="post" enctype="multipart/form-data" class="max-w-3xl w-full mx-auto space-y-6 pb-12">
+            <!-- Upload de Capa -->
+            <div>
+                <label class="block text-xs font-bold text-textMuted uppercase mb-2">Imagem de Capa</label>
+                <div class="relative border-2 border-dashed border-surfaceBorder rounded-lg h-64 flex flex-col items-center justify-center bg-surface cursor-pointer hover:border-primary transition-colors">
+                    {% if video.imagem %}
+                    <img id="current-image-preview" src="{{ url_for('static', filename='uploads/' ~ video.imagem) }}" alt="{{ video.titulo }}" class="absolute inset-0 w-full h-full object-cover rounded-lg"/>
+                    {% else %}
+                    <i class="fa-solid fa-arrow-up-from-bracket text-primary text-xl mb-3"></i>
+                    <p class="text-sm text-textMuted">Arraste ou <span class="text-primary font-medium">clique para selecionar</span></p>
+                    <p class="text-xs text-textMuted mt-1">JPG, PNG, WebP</p>
+                    {% endif %}
+                    <input name="imagem" type="file" accept="image/png,image/jpeg,image/webp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="previewImage(event)" />
+                </div>
+            </div>
+
+            <!-- Inputs -->
+            <div>
+                <label class="block text-xs font-bold text-textMuted uppercase mb-2">Título *</label>
+                <input name="titulo" type="text" placeholder="Nome do vídeo" value="{{ video.titulo or '' }}" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-textMuted uppercase mb-2">Autor / Criador *</label>
+                <input name="autor" type="text" placeholder="Canal ou nome do criador" value="{{ video.autor or '' }}" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-textMuted uppercase mb-2">Gênero</label>
+                <select name="genero" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary appearance-none">
+                    {% set genres = ['Drama', 'Comédia', 'Terror', 'Ação', 'Ficção Científica', 'Animação', 'Aventura', 'Documentário', 'Romance', 'Outro'] %}
+                    {% for genre in genres %}
+                    <option value="{{ genre }}" {% if video.genero == genre %}selected{% endif %}>{{ genre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-textMuted uppercase mb-2">Link do Vídeo *</label>
+                <input name="link" type="url" placeholder="https://..." value="{{ video.link or '' }}" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-textMuted uppercase mb-2">Análise da IA</label>
+                <textarea name="analise" placeholder="Cole aqui um resumo ou análise gerada por IA..." rows="4" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary resize-none">{{ video.analise or '' }}</textarea>
+            </div>
+
+            <!-- Botões de Ação -->
+            <div class="flex gap-4 pt-4">
+                <button type="button" onclick="window.history.back()" class="flex-1 py-3 bg-transparent border border-surfaceBorder rounded-lg font-medium hover:bg-surface transition-colors">Cancelar</button>
+                <button type="submit" class="flex-1 py-3 bg-primary hover:bg-primaryHover text-white rounded-lg font-medium transition-colors">Salvar Alterações</button>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const output = document.getElementById('current-image-preview');
+                if (output) {
+                    output.src = reader.result;
+                } else {
+                    const parentDiv = event.target.closest('.relative');
+                    parentDiv.innerHTML = `<img id="current-image-preview" src="${reader.result}" class="absolute inset-0 w-full h-full object-cover rounded-lg"/>` +
+                                          `<input name="imagem" type="file" accept="image/png,image/jpeg,image/webp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="previewImage(event)" />`;
+                }
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+</body>
+</html>

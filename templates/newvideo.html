@@ -57,14 +57,16 @@
             <h1 class="text-2xl font-bold">Novo Vídeo</h1>
         </div>
         <!--Formulário do tipo Post pois estou "cadastrando" um filme, ou seja, enviando dados para o servidor-->
-        <form action="" method="post" class="max-w-3xl w-full mx-auto space-y-6 pb-12">
+        <form action="" method="post" enctype="multipart/form-data" class="max-w-3xl w-full mx-auto space-y-6 pb-12">
             <!-- Upload de Capa -->
             <div>
                 <label class="block text-xs font-bold text-textMuted uppercase mb-2">Imagem de Capa</label>
-                <div class="border-2 border-dashed border-surfaceBorder rounded-lg h-64 flex flex-col items-center justify-center bg-surface cursor-pointer hover:border-primary transition-colors">
-                    <i class="fa-solid fa-arrow-up-from-bracket text-primary text-xl mb-3"></i>
-                    <p class="text-sm text-textMuted">Arraste ou <span class="text-primary font-medium">clique para selecionar</span></p>
-                    <p class="text-xs text-textMuted mt-1">JPG, PNG, WebP</p>
+                <div class="relative border-2 border-dashed border-surfaceBorder rounded-lg h-64 flex flex-col items-center justify-center bg-surface cursor-pointer hover:border-primary transition-colors">
+                    <i id="upload-icon" class="fa-solid fa-arrow-up-from-bracket text-primary text-xl mb-3"></i>
+                    <p id="upload-text" class="text-sm text-textMuted">Arraste ou <span class="text-primary font-medium">clique para selecionar</span></p>
+                    <p id="upload-formats" class="text-xs text-textMuted mt-1">JPG, PNG, WebP</p>
+                    <img id="image-preview" src="#" alt="Image Preview" class="hidden w-full h-full object-cover">
+                    <input name="imagem" id="image-upload" type="file" accept="image/png,image/jpeg,image/webp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                 </div>
             </div>
 
@@ -102,7 +104,7 @@
 
             <div>
                 <label class="block text-xs font-bold text-textMuted uppercase mb-2">Análise da IA</label>
-                <textarea placeholder="Cole aqui um resumo ou análise gerada por IA..." rows="4" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary resize-none"></textarea>
+                <textarea name="analise" placeholder="Cole aqui um resumo ou análise gerada por IA..." rows="4" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary resize-none"></textarea>
             </div>
 
             <!-- Botões de Ação -->

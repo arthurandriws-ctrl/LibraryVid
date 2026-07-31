@@ -9,7 +9,7 @@ except (ImportError, ValueError):
 
 class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    # imagem: definir como salvar a foto da capa do vídeo
+    imagem = db.Column(db.String(255), nullable=True)
     titulo = db.Column(db.String(255), nullable=True)
     autor = db.Column(db.String(255), nullable=True)
     genero = db.Column(db.String(100), nullable=True)

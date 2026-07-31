@@ -79,6 +79,14 @@
                     <p class="text-textMuted text-sm line-clamp-2 mt-2">{{ video.analise or '' }}</p>
                     <div class="mt-auto flex items-center justify-start gap-4">
                         <a href="{{ video.link or '#' }}" target="_blank" class="text-sm text-primary hover:underline">Abrir link</a>
+                        <a href="{{ url_for('editar_video', video_id=video.id) }}" class="text-sm text-textMuted hover:text-white transition-colors">
+                            <i class="fa-solid fa-pencil"></i> Editar
+                        </a>
+                        <form action="{{ url_for('deletar_video', video_id=video.id) }}" method="post" onsubmit="return confirm('Tem certeza que deseja deletar este vídeo?');">
+                            <button type="submit" class="text-sm text-red-500 hover:text-red-400 transition-colors">
+                                <i class="fa-solid fa-trash"></i> Deletar
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
