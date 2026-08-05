@@ -60,7 +60,7 @@
         {% if videos and videos|length > 0 %}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             {% for video in videos %}
-            <div class="bg-surface rounded-lg border border-surfaceBorder p-4 flex gap-4 items-start">
+            <a href="{{ url_for('exibir_analise', video_id=video.id) }}" class="bg-surface rounded-lg border border-surfaceBorder p-4 flex gap-4 items-start">
                 <div class="w-28 h-40 bg-surfaceBorder rounded overflow-hidden flex-shrink-0 flex items-center justify-center">
                     {% if video.imagem %}
                     <img src="{{ url_for('static', filename='uploads/' ~ video.imagem) }}" alt="{{ video.titulo }}" class="w-full h-full object-cover">
@@ -76,7 +76,7 @@
                         </div>
                         <div class="text-textMuted text-sm">{{ video.genero or '—' }}</div>
                     </div>
-                    <p class="text-textMuted text-sm line-clamp-2 mt-2">{{ video.analise or '' }}</p>
+                    <p class="text-textMuted text-sm line-clamp-2 mt-2">{{ video.analise or 'Análise da IA ainda não disponível.' }}</p>
                     <div class="mt-auto flex items-center justify-start gap-4">
                         <a href="{{ video.link or '#' }}" target="_blank" class="text-sm text-primary hover:underline">Abrir link</a>
                         <a href="{{ url_for('editar_video', video_id=video.id) }}" class="text-sm text-textMuted hover:text-white transition-colors">
@@ -89,7 +89,7 @@
                         </form>
                     </div>
                 </div>
-            </div>
+            </a>
             {% endfor %}
         </div>
         {% else %}

@@ -1,11 +1,13 @@
 try:
     from .db import db
     from .models import Video
+    from .ia import analisar_video
 except (ImportError, ValueError):
     import sys, os
     sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
     from db import db
     from models import Video
+    from ia import analisar_video
 
 from flask import Flask, render_template, request, redirect, url_for
 from werkzeug.utils import secure_filename
@@ -72,7 +74,20 @@ def videonovo():
 
         db.session.add(novo_video)
         db.session.commit()
-        return redirect(url_for("homepage"))
+
+        video_data = {
+            "titulo": novo_video.titulo,
+            "autor": novo_video.autor,
+            "genero": novo_video.genero,
+            "link": novo_video.link,
+            "imagem": novo_video.imagem
+        }
+        
+        analise_result = analisar_video(video_data)
+        novo_video.analise = analise_result["analise"] # Assuming Video model has an 'analise' field
+        db.session.commit()
+
+        return redirect(url_for("exibir_analise", video_id=novo_video.id))
 
     return render_template("newvideo.html")
 
@@ -144,10 +159,10 @@ def deletar_video(video_id):
     db.session.commit()
     return redirect(url_for("homepage"))
 
-if __name__ == '__main__':
+@app.route("/analise/<int:video_id>")
+def exibir_analise(video_id):
+    video = Video.query.get_or_404(video_id)
+    return render_template("analise.html", video=video)
+
+if __name__ == "__main__":
     app.run(debug=True)
-    
-    """
-    corrija o problema da imagem que ao ser salva no cadastro do vídeo e que não fica visível, de bônus ao cadastrar um filme, ao fazer o upload da imagem, faça um feedback do upload da imagem, pois ao inserir uma imagem na sessão de cadastro, a aplicação não mostra a imagem selecionada e causa o efeito de que está vazia
-    """
-    

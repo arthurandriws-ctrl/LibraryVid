@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise do Vídeo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Análise para: {{ video.titulo }}</h1>
+        {% if video.imagem %}
+            <img src="{{ url_for('static', filename='uploads/' + video.imagem) }}" alt="{{ video.titulo }}" style="max-width: 300px;">
+        {% endif %}
+        <p><strong>Autor:</strong> {{ video.autor }}</p>
+        <p><strong>Gênero:</strong> {{ video.genero }}</p>
+        <p><strong>Link:</strong> <a href="{{ video.link }}" target="_blank">Assistir</a></p>
+        <h2>Análise da IA:</h2>
+        <p>{{ video.analise }}</p>
+        <a href="{{ url_for('homepage') }}" class="btn">Voltar para a Home</a>
+    </div>
+</body>
+</html>

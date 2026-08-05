@@ -3,7 +3,7 @@ import json
 from google import genai
 from google.genai import types
 
-def analisar_video():
+def analisar_video(video_data):
     client = genai.Client(api_key=os.getenv("GEMINIAPIKEY"))
     modelo = "gemini-2.5-flash"
     
@@ -15,7 +15,7 @@ def analisar_video():
     não assistir caso a nota for ruim.
     
     Dados fornecidos do filme
-    {dados_video}
+    {video_data}
         
     Escreva em português, de forma empática e acessível, e evite Markdown.
     """
