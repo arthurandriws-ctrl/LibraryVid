@@ -14,7 +14,7 @@ def analisar_video():
     do filme, os motivos para assistir o filme caso a nota for boa, e motivos para
     não assistir caso a nota for ruim.
     
-    Dados fornecidos do filme:
+    Dados fornecidos do filme
     {dados_video}
         
     Escreva em português, de forma empática e acessível, e evite Markdown.

@@ -52,7 +52,9 @@ def videonovo():
 
         if imagem and imagem.filename and allowed_file(imagem.filename):
             filename = secure_filename(imagem.filename)
-            imagem.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+            imagem_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+            imagem.save(imagem_path)
+            print(f"Image saved to: {imagem_path}") # Debug print
             imagem_filename = filename
 
         titulo = request.form.get("titulo")
@@ -144,3 +146,8 @@ def deletar_video(video_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+    
+    """
+    corrija o problema da imagem que ao ser salva no cadastro do vídeo e que não fica visível, de bônus ao cadastrar um filme, ao fazer o upload da imagem, faça um feedback do upload da imagem, pois ao inserir uma imagem na sessão de cadastro, a aplicação não mostra a imagem selecionada e causa o efeito de que está vazia
+    """
+    
