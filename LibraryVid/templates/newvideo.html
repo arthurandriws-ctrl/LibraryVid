@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibraryVid - Novo Vídeo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/clay.css') }}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#EFE7DA',
+                        surface: '#F7F3EB',
+                        surfaceBorder: '#D8D0C1',
+                        primary: '#94946F',
+                        primaryHover: '#777752',
+                        textMuted: '#706F60'
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-white min-h-screen flex flex-col relative">
+    <div id="app-loader" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#0d0d12]/80 backdrop-blur-sm">
+        <div class="flex flex-col items-center gap-4 rounded-2xl border border-violet-500/30 bg-[#15151c]/90 px-8 py-6 shadow-[0_0_25px_rgba(139,92,246,0.25)]">
+            <div class="h-12 w-12 animate-spin rounded-full border-4 border-violet-500/25 border-t-violet-500"></div>
+            <p id="app-loader-text" class="text-sm font-medium text-violet-200">Carregando…</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="border-b border-surfaceBorder bg-background px-4 sm:px-8 py-4 flex flex-wrap justify-between items-center gap-3">
+        <a href="{{ url_for('homepage', tipo=tipo) }}" class="flex items-center gap-2 text-xl font-bold transition-colors hover:text-primary">
+            <div class="w-8 h-8 bg-primary rounded flex items-center justify-center">
+                <i class="fa-solid fa-play text-white text-sm"></i>
+            </div>
+            LibraryVid
+        </a>
+        <div class="ml-auto flex items-center gap-2 sm:gap-3">
+            <form action="{{ url_for('logout') }}" method="post"><button class="inline-flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-textMuted transition-colors hover:bg-surface hover:text-white"><i class="fa-solid fa-right-from-bracket"></i>Sair</button></form>
+            <nav class="flex shrink-0 bg-surface rounded-md border border-surfaceBorder p-1">
+                <a href="{{ url_for('homepage', tipo=tipo) }}" data-nav="library" class="nav-link flex items-center gap-2 px-2 sm:px-4 py-2 rounded text-sm font-medium transition-colors {% if request.endpoint != 'estatisticas' %}bg-surfaceBorder text-white{% else %}text-textMuted hover:text-white{% endif %}">
+                    <i class="fa-solid fa-layer-group"></i> Biblioteca
+                </a>
+                <a href="{{ url_for('estatisticas', tipo=tipo) }}" data-nav="stats" class="nav-link flex items-center gap-2 px-2 sm:px-4 py-2 rounded text-sm font-medium transition-colors {% if request.endpoint == 'estatisticas' %}bg-surfaceBorder text-white{% else %}text-textMuted hover:text-white{% endif %}">
+                    <i class="fa-solid fa-chart-simple"></i> Estatísticas
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-8 flex flex-col">
+        <div class="flex items-center gap-4 mb-8">
+            <a href="{{ url_for('homepage', tipo=tipo) }}" class="text-textMuted hover:text-white transition-colors">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <h1 class="text-2xl font-bold">Adicionar {{ 'livro' if tipo == 'livro' else 'vídeo' }}</h1>
+        </div>
+        <form action="" method="post" enctype="multipart/form-data" data-loading-label="Salvando {{ 'livro' if tipo == 'livro' else 'vídeo' }}…" class="max-w-3xl w-full mx-auto space-y-6 pb-12 transition-all duration-300 hover:scale-[1.01]">
+            <input type="hidden" name="tipo" value="{{ tipo }}">
+            <!-- Upload de Capa -->
+            <div>
+                <label class="block text-xs font-bold text-textMuted uppercase mb-2">Capa (opcional)</label>
+                <div class="relative border-2 border-dashed border-surfaceBorder rounded-lg h-64 flex flex-col items-center justify-center bg-surface cursor-pointer hover:border-primary transition-colors">
+                    <i id="upload-icon" class="fa-solid fa-arrow-up-from-bracket text-primary text-xl mb-3"></i>
+                    <p id="upload-text" class="text-sm text-textMuted">Arraste ou <span class="text-primary font-medium">clique para selecionar</span></p>
+                    <p id="upload-formats" class="text-xs text-textMuted mt-1">JPG, PNG, WebP</p>
+                    <img id="image-preview" src="#" alt="Image Preview" class="hidden w-full h-full object-cover">
+                    <input name="imagem" id="image-upload" type="file" accept="image/png,image/jpeg,image/webp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                </div>
+            </div>
+
+            <!-- Inputs -->
+            <div>
+                <label class="block text-xs font-bold text-textMuted uppercase mb-2">Título *</label>
+                <input name="titulo" type="text" required placeholder="{{ 'Título do livro' if tipo == 'livro' else 'Título do vídeo' }}" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-textMuted uppercase mb-2">{{ 'Autor(a)' if tipo == 'livro' else 'Autor / Criador' }} *</label>
+                <input name="autor" type="text" required placeholder="{{ 'Nome do autor' if tipo == 'livro' else 'Canal ou nome do criador' }}" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-textMuted uppercase mb-2">Gênero</label>
+                <select name="genero" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary appearance-none">
+                    {% if tipo == 'livro' %}
+                    {% set genres = ['Ficção', 'Fantasia', 'Romance', 'Mistério', 'Terror', 'Aventura', 'Biografia', 'História', 'Autoajuda', 'Outro'] %}
+                    {% else %}
+                    {% set genres = ['Drama', 'Comédia', 'Terror', 'Ação', 'Ficção Científica', 'Animação', 'Aventura', 'Documentário', 'Romance', 'Outro'] %}
+                    {% endif %}
+                    {% for genre in genres %}
+                    <option>{{ genre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-textMuted uppercase mb-2">{{ 'Link do livro *' if tipo == 'livro' else 'Link do vídeo *' }}</label>
+                <input name="link" type="url" required placeholder="https://..." class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary">
+            </div>
+
+            <!-- Botões de Ação -->
+            <div class="flex gap-4 pt-4">
+                <a href="{{ url_for('homepage', tipo=tipo) }}" class="flex-1 py-3 text-center bg-transparent border border-surfaceBorder rounded-lg font-medium hover:bg-surface transition-colors">Cancelar</a>
+                <button type="submit" class="flex-1 py-3 bg-primary hover:bg-primaryHover text-white rounded-lg font-medium transition-colors">Adicionar {{ 'livro' if tipo == 'livro' else 'vídeo' }}</button>
+            </div>
+        </form>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        const imageUpload = document.getElementById('image-upload');
+        const imagePreview = document.getElementById('image-preview');
+        const uploadIcon = document.getElementById('upload-icon');
+        const uploadText = document.getElementById('upload-text');
+        const uploadFormats = document.getElementById('upload-formats');
+
+        imageUpload.addEventListener('change', function (event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                imagePreview.src = e.target.result;
+                imagePreview.classList.remove('hidden');
+                imagePreview.classList.add('block');
+                uploadIcon.classList.add('hidden');
+                uploadText.classList.add('hidden');
+                uploadFormats.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
+</body>
+</html>

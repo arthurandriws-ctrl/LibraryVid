@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibraryVid - Parceiros</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/clay.css') }}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#EFE7DA',
+                        surface: '#F7F3EB',
+                        surfaceBorder: '#D8D0C1',
+                        primary: '#94946F',
+                        primaryHover: '#777752',
+                        textMuted: '#706F60'
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-white min-h-screen flex flex-col relative">
+    <header class="border-b border-surfaceBorder bg-background px-4 sm:px-8 py-4 flex flex-wrap justify-between items-center gap-3">
+        <a href="{{ url_for('homepage') }}" class="flex items-center gap-2 text-xl font-bold transition-colors hover:text-primary">
+            <div class="w-8 h-8 bg-primary rounded flex items-center justify-center">
+                <i class="fa-solid fa-play text-white text-sm"></i>
+            </div>
+            LibraryVid
+        </a>
+        <div class="ml-auto flex items-center gap-2 sm:gap-3">
+            <form action="{{ url_for('logout') }}" method="post"><button class="inline-flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-textMuted transition-colors hover:bg-surface hover:text-white"><i class="fa-solid fa-right-from-bracket"></i>Sair</button></form>
+            <nav class="flex shrink-0 bg-surface rounded-md border border-surfaceBorder p-1">
+                <a href="{{ url_for('homepage') }}" data-nav="library" class="nav-link flex items-center gap-2 px-2 sm:px-4 py-2 rounded text-sm font-medium transition-colors {% if request.endpoint != 'estatisticas' %}bg-surfaceBorder text-white{% else %}text-textMuted hover:text-white{% endif %}">
+                    <i class="fa-solid fa-layer-group"></i> Biblioteca
+                </a>
+                <a href="{{ url_for('estatisticas') }}" data-nav="stats" class="nav-link flex items-center gap-2 px-2 sm:px-4 py-2 rounded text-sm font-medium transition-colors {% if request.endpoint == 'estatisticas' %}bg-surfaceBorder text-white{% else %}text-textMuted hover:text-white{% endif %}">
+                    <i class="fa-solid fa-chart-simple"></i> Estatísticas
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-5xl w-full mx-auto p-8">
+        <div class="mb-8">
+            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-primary mb-2">Rede</p>
+            <h1 class="text-3xl font-bold">Parceiros</h1>
+        </div>
+
+        {% if parceiros %}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {% for parceiro in parceiros %}
+                <article class="bg-surface border border-surfaceBorder rounded-2xl p-6">
+                    <div class="w-14 h-14 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center text-xl text-primary mb-4">
+                        <i class="fa-solid fa-user-group"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold mb-1">{{ parceiro.nome }}</h2>
+                    <p class="text-sm text-textMuted mb-4">{{ parceiro.tipo }}</p>
+                    <span class="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide text-emerald-300">
+                        {{ parceiro.status }}
+                    </span>
+                    <div class="mt-5 flex flex-wrap gap-3 border-t border-surfaceBorder pt-4 text-sm">
+                        {% if parceiro.site_url %}
+                        <a href="{{ parceiro.site_url }}" target="_blank" rel="noopener noreferrer" class="text-primary hover:text-white hover:underline">
+                            <i class="fa-solid fa-globe mr-1"></i> Site
+                        </a>
+                        {% endif %}
+                        {% if parceiro.contato_url %}
+                        <a href="{{ parceiro.contato_url }}" target="_blank" rel="noopener noreferrer" class="text-textMuted hover:text-white hover:underline">
+                            <i class="fa-solid fa-address-book mr-1"></i> Contato
+                        </a>
+                        {% endif %}
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="rounded-2xl border border-dashed border-surfaceBorder bg-surface p-8 text-center">
+                <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/15 text-primary">
+                    <i class="fa-solid fa-user-group text-xl"></i>
+                </div>
+                <h2 class="text-xl font-semibold mb-2">Nenhum parceiro cadastrado</h2>
+                <p class="text-sm text-textMuted max-w-md mx-auto">
+                    Os parceiros cadastrados pela equipe aparecerão aqui.
+                </p>
+            </div>
+        {% endif %}
+    </main>
+
+    <div class="fab-menu fixed bottom-8 right-8 z-30 flex flex-col items-end gap-3">
+        <div class="fab-options flex flex-col items-end gap-3 opacity-0 translate-y-4 pointer-events-none transition-all duration-300 ease-out">
+            <a href="{{ url_for('perfil') }}" class="group flex items-center gap-3 text-white">
+                <span class="rounded-full border border-surfaceBorder bg-surface/90 px-3 py-2 text-xs font-medium text-white shadow-lg backdrop-blur-sm">Meu perfil</span>
+                <span class="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-lg shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-colors group-hover:bg-primaryHover">
+                    <i class="fa-solid fa-user"></i>
+                </span>
+            </a>
+            <a href="{{ url_for('videonovo') }}" class="group flex items-center gap-3 text-white">
+                <span class="rounded-full border border-surfaceBorder bg-surface/90 px-3 py-2 text-xs font-medium text-white shadow-lg backdrop-blur-sm">Adicionar vídeos</span>
+                <span class="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-lg shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-colors group-hover:bg-primaryHover">
+                    <i class="fa-solid fa-video"></i>
+                </span>
+            </a>
+            <a href="{{ url_for('parceiros') }}" class="group flex items-center gap-3 text-white">
+                <span class="rounded-full border border-surfaceBorder bg-surface/90 px-3 py-2 text-xs font-medium text-white shadow-lg backdrop-blur-sm">Ver parceiros</span>
+                <span class="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-lg shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-colors group-hover:bg-primaryHover">
+                    <i class="fa-solid fa-user-group"></i>
+                </span>
+            </a>
+        </div>
+
+        <button id="fab-toggle" type="button" aria-label="Abrir ações" class="fab-toggle flex h-14 w-14 items-center justify-center rounded-full bg-primary text-xl text-white shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-all duration-300 hover:bg-primaryHover">
+            <i class="fa-solid fa-plus transition-transform duration-300"></i>
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const fabMenu = document.querySelector('.fab-menu');
+            const fabToggle = document.getElementById('fab-toggle');
+            const fabOptions = document.querySelector('.fab-options');
+
+            if (fabMenu && fabToggle && fabOptions) {
+                const updateFabState = () => {
+                    const isOpen = fabMenu.classList.contains('menu-open');
+                    fabOptions.classList.toggle('opacity-0', !isOpen);
+                    fabOptions.classList.toggle('translate-y-4', !isOpen);
+                    fabOptions.classList.toggle('pointer-events-none', !isOpen);
+                    fabOptions.classList.toggle('opacity-100', isOpen);
+                    fabOptions.classList.toggle('translate-y-0', isOpen);
+                    fabOptions.classList.toggle('pointer-events-auto', isOpen);
+
+                    const icon = fabToggle.querySelector('i');
+                    if (icon) {
+                        icon.style.transform = isOpen ? 'rotate(90deg)' : 'rotate(0deg)';
+                    }
+                };
+
+                fabToggle.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    fabMenu.classList.toggle('menu-open');
+                    updateFabState();
+                });
+
+                document.addEventListener('click', (event) => {
+                    if (!fabMenu.contains(event.target)) {
+                        fabMenu.classList.remove('menu-open');
+                        updateFabState();
+                    }
+                });
+
+                updateFabState();
+            }
+        });
+    </script>
+</body>
+</html>

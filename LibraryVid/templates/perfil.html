@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibraryVid - Perfil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/clay.css') }}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#EFE7DA',
+                        surface: '#F7F3EB',
+                        surfaceBorder: '#D8D0C1',
+                        primary: '#94946F',
+                        primaryHover: '#777752',
+                        textMuted: '#706F60'
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-white min-h-screen flex flex-col relative">
+    <div id="app-loader" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#0d0d12]/80 backdrop-blur-sm">
+        <div class="flex flex-col items-center gap-4 rounded-2xl border border-violet-500/30 bg-[#15151c]/90 px-8 py-6 shadow-[0_0_25px_rgba(139,92,246,0.25)]">
+            <div class="h-12 w-12 animate-spin rounded-full border-4 border-violet-500/25 border-t-violet-500"></div>
+            <p id="app-loader-text" class="text-sm font-medium text-violet-200">Carregando…</p>
+        </div>
+    </div>
+
+    <header class="border-b border-surfaceBorder bg-background px-4 sm:px-8 py-4 flex flex-wrap justify-between items-center gap-3">
+        <a href="{{ url_for('homepage') }}" class="flex items-center gap-2 text-xl font-bold transition-colors hover:text-primary">
+            <div class="w-8 h-8 bg-primary rounded flex items-center justify-center">
+                <i class="fa-solid fa-play text-white text-sm"></i>
+            </div>
+            LibraryVid
+        </a>
+        <div class="ml-auto flex items-center gap-2 sm:gap-3">
+            <form action="{{ url_for('logout') }}" method="post"><button class="inline-flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-textMuted transition-colors hover:bg-surface hover:text-white"><i class="fa-solid fa-right-from-bracket"></i>Sair</button></form>
+            <nav class="flex shrink-0 bg-surface rounded-md border border-surfaceBorder p-1">
+                <a href="{{ url_for('homepage', tipo='video') }}" data-nav="library" class="nav-link flex items-center gap-2 px-2 sm:px-4 py-2 rounded text-sm font-medium transition-colors text-textMuted hover:text-white">
+                    <i class="fa-solid fa-layer-group"></i> Biblioteca
+                </a>
+                <a href="{{ url_for('estatisticas', tipo='video') }}" data-nav="stats" class="nav-link flex items-center gap-2 px-2 sm:px-4 py-2 rounded text-sm font-medium transition-colors text-textMuted hover:text-white">
+                    <i class="fa-solid fa-chart-simple"></i> Estatísticas
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl w-full mx-auto p-8 flex flex-col gap-8">
+        <div class="flex justify-start">
+            <button type="button" onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href = '{{ url_for('homepage') }}'; }" class="inline-flex items-center gap-2 rounded-lg border border-surfaceBorder bg-surface px-4 py-2 text-sm text-textMuted transition-colors hover:border-primary/50 hover:text-white">
+                <i class="fa-solid fa-arrow-left"></i> Voltar
+            </button>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="space-y-2">
+                    {% for category, message in messages %}
+                        <p class="rounded border {% if category == 'success' %}border-emerald-300 bg-emerald-100 text-emerald-800{% else %}border-red-300 bg-red-100 text-red-800{% endif %} p-3 text-sm">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="rounded-2xl border border-surfaceBorder bg-surface p-6 md:p-8">
+            <div class="flex flex-col items-center gap-6 md:flex-row md:items-center md:justify-between">
+                <div class="flex items-center gap-5">
+                    <div class="relative">
+                        {% if usuario.foto_perfil %}
+                            <img src="{{ url_for('static', filename='uploads/' ~ usuario.foto_perfil) }}" alt="Foto de perfil de {{ usuario.nome }}" class="h-24 w-24 rounded-full object-cover border border-surfaceBorder shadow-[0_0_25px_rgba(139,92,246,0.25)]">
+                        {% else %}
+                            <div class="flex h-24 w-24 items-center justify-center rounded-full border border-surfaceBorder bg-[#0d0d12] text-2xl font-bold text-violet-200">
+                                {{ usuario.nome[:1]|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.2em] text-textMuted">Perfil</p>
+                        <h1 class="mt-2 text-3xl font-bold text-white">{{ usuario.nome }}</h1>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 text-sm w-full max-w-md">
+                    <div class="rounded-xl border border-surfaceBorder bg-background/40 p-4 text-center">
+                        <p class="text-textMuted">Vídeos salvos</p>
+                        <p class="mt-2 text-2xl font-semibold text-white">{{ total_videos }}</p>
+                    </div>
+                    <div class="rounded-xl border border-surfaceBorder bg-background/40 p-4 text-center">
+                        <p class="text-textMuted">Livros salvos</p>
+                        <p class="mt-2 text-2xl font-semibold text-white">{{ total_livros }}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="grid gap-8 lg:grid-cols-[340px_minmax(0,1fr)]">
+            <aside class="rounded-2xl border border-surfaceBorder bg-surface p-6">
+                <h2 class="text-lg font-semibold text-white">Editar perfil</h2>
+                <form method="post" enctype="multipart/form-data" class="mt-5 space-y-4" id="profile-form">
+                    <div>
+                        <label class="block text-sm text-textMuted mb-2">Foto de perfil</label>
+                        <input id="foto_perfil_input" type="file" name="foto_perfil" accept="image/png,image/jpeg,image/webp" class="block w-full rounded-lg border border-surfaceBorder bg-background px-3 py-2 text-sm text-white file:mr-3 file:rounded file:border-0 file:bg-violet-600 file:px-3 file:py-2 file:text-white file:font-medium">
+                    </div>
+
+                    <div id="profile-photo-editor" class="hidden rounded-2xl border border-surfaceBorder bg-background/40 p-4">
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="text-xs font-medium uppercase tracking-[0.2em] text-textMuted">Preview & crop</span>
+                            <div class="flex items-center gap-3">
+                                <button id="reset-photo-edit" type="button" class="text-xs font-medium text-violet-200 transition-colors hover:text-violet-100">Resetar</button>
+                                <button id="cancel-photo-selection" type="button" class="text-xs font-medium text-textMuted transition-colors hover:text-white">Cancelar</button>
+                            </div>
+                        </div>
+
+                        <div class="mx-auto h-52 w-52 overflow-hidden rounded-full border border-violet-500/30 bg-[#0d0d12] shadow-[0_0_30px_rgba(139,92,246,0.15)]">
+                            <img id="profile-photo-preview" src="" alt="Pré-visualização da foto de perfil" class="h-full w-full object-cover transition-transform duration-150 ease-out" draggable="false">
+                        </div>
+
+                        <div class="mt-4 space-y-3">
+                            <div class="flex items-center justify-between text-xs uppercase tracking-[0.18em] text-textMuted">
+                                <span>Zoom</span>
+                                <span id="zoom-value">1.0x</span>
+                            </div>
+                            <input id="profile-photo-zoom" type="range" min="1" max="2.5" step="0.1" value="1" class="h-2 w-full cursor-pointer appearance-none rounded-full bg-surfaceBorder accent-violet-500">
+                            <p class="text-center text-[11px] text-textMuted">Arraste a imagem para ajustar a composição do corte.</p>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full rounded-lg bg-violet-600 px-4 py-3 font-medium text-white transition-colors hover:bg-violet-500">Salvar foto</button>
+                    {% if usuario.foto_perfil %}
+                        <button type="submit" name="acao" value="remover_foto" formnovalidate onclick="return confirm('Remover sua foto de perfil?')" class="w-full rounded-lg border border-red-400/30 px-4 py-3 font-medium text-red-200 transition-colors hover:bg-red-400/10">
+                            <i class="fa-solid fa-trash mr-2"></i>Remover foto atual
+                        </button>
+                    {% endif %}
+                </form>
+
+                <div class="mt-6 rounded-xl border border-surfaceBorder bg-background/40 p-4 text-xs text-textMuted">
+                    <p class="font-medium text-white mb-2">Compartilhamento seguro</p>
+                    <p>Os dados compartilhados são limitados a nome, quantidade de livros e vídeos salvos e seus rankings. Nenhum e-mail, senha ou dado sensível será incluído.</p>
+                </div>
+            </aside>
+
+            <section class="space-y-6">
+                <div class="flex flex-wrap justify-end gap-3">
+                    <button id="download-profile" type="button" class="rounded-lg border border-surfaceBorder bg-background px-4 py-2 text-sm font-medium text-white transition-colors hover:border-violet-500 hover:text-violet-200">
+                        <i class="fa-solid fa-download mr-2"></i>Baixar dados
+                    </button>
+                    <button id="share-profile" type="button" class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primaryHover">
+                        <i class="fa-solid fa-share-nodes mr-2"></i>Compartilhar
+                    </button>
+                </div>
+
+                {% for tipo_ranking, titulo, itens in [('video', 'Top vídeos', top_videos), ('livro', 'Top livros', top_livros)] %}
+                <section class="rounded-2xl border border-surfaceBorder bg-surface p-6" aria-labelledby="ranking-{{ tipo_ranking }}">
+                    <p class="text-xs uppercase tracking-[0.2em] text-textMuted">Resumo</p>
+                    <h2 id="ranking-{{ tipo_ranking }}" class="mt-2 text-2xl font-bold text-white">{{ titulo }}</h2>
+                    {% if itens %}
+                    <div class="mt-6 space-y-3">
+                        {% for item in itens %}
+                        <div class="flex items-center justify-between gap-4 rounded-xl border border-surfaceBorder bg-background/30 p-4 {% if loop.index > 3 %}hidden{% endif %}" data-ranking-item="{{ tipo_ranking }}">
+                            <div class="flex items-center gap-4 min-w-0">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">{{ loop.index }}</div>
+                                <div class="min-w-0">
+                                    <p class="truncate font-medium text-white">{{ item.titulo or 'Sem título' }}</p>
+                                    <p class="text-sm text-textMuted">{{ item.genero or 'Sem gênero' }}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs uppercase tracking-[0.18em] text-textMuted">Média</p>
+                                <p class="mt-1 font-semibold text-primary">{{ '%.2f'|format(item.media_avaliacao or 0) }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if itens|length > 3 %}
+                    <button type="button" class="mt-4 rounded-lg border border-surfaceBorder px-4 py-2 text-sm font-medium text-primary transition-colors hover:border-primary" data-ranking-toggle="{{ tipo_ranking }}" aria-expanded="false">
+                        Ver mais
+                    </button>
+                    {% endif %}
+                    {% else %}
+                    <div class="mt-6 rounded-xl border border-dashed border-surfaceBorder bg-background/20 p-8 text-center text-textMuted">
+                        Você ainda não possui {{ 'vídeos' if tipo_ranking == 'video' else 'livros' }} salvos para compor o ranking.
+                    </div>
+                    {% endif %}
+                </section>
+                {% endfor %}
+            </section>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        const profileData = {{ profile_data|tojson }};
+
+        document.querySelectorAll('[data-ranking-toggle]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const tipoRanking = button.dataset.rankingToggle;
+                const expandir = button.getAttribute('aria-expanded') !== 'true';
+                document.querySelectorAll(`[data-ranking-item="${tipoRanking}"]`).forEach((item, index) => {
+                    if (index >= 3) item.classList.toggle('hidden', !expandir);
+                });
+                button.setAttribute('aria-expanded', String(expandir));
+                button.textContent = expandir ? 'Ver menos' : 'Ver mais';
+            });
+        });
+
+        const photoInput = document.getElementById('foto_perfil_input');
+        const profilePhotoEditor = document.getElementById('profile-photo-editor');
+        const profilePhotoPreview = document.getElementById('profile-photo-preview');
+        const photoZoomInput = document.getElementById('profile-photo-zoom');
+        const zoomValue = document.getElementById('zoom-value');
+        const resetPhotoEditButton = document.getElementById('reset-photo-edit');
+        const cancelPhotoSelectionButton = document.getElementById('cancel-photo-selection');
+        let photoReader = null;
+
+        let panX = 0;
+        let panY = 0;
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+
+        const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+        function applyPhotoTransform() {
+            const zoom = Number(photoZoomInput.value || 1);
+            profilePhotoPreview.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+            zoomValue.textContent = `${zoom.toFixed(1)}x`;
+        }
+
+        function resetPhotoEdit() {
+            panX = 0;
+            panY = 0;
+            photoZoomInput.value = '1';
+            applyPhotoTransform();
+        }
+
+        function cancelPhotoSelection() {
+            photoReader?.abort();
+            photoReader = null;
+            photoInput.value = '';
+            profilePhotoPreview.removeAttribute('src');
+            profilePhotoEditor.classList.add('hidden');
+            resetPhotoEdit();
+        }
+
+        photoInput?.addEventListener('change', (event) => {
+            const [file] = event.target.files || [];
+            if (!file) {
+                photoReader?.abort();
+                photoReader = null;
+                profilePhotoPreview.removeAttribute('src');
+                profilePhotoEditor.classList.add('hidden');
+                return;
+            }
+
+            photoReader?.abort();
+            const reader = new FileReader();
+            photoReader = reader;
+            reader.onload = (loadEvent) => {
+                if (photoReader !== reader || photoInput.files[0] !== file) return;
+                profilePhotoPreview.src = loadEvent.target.result;
+                profilePhotoEditor.classList.remove('hidden');
+                resetPhotoEdit();
+            };
+            reader.readAsDataURL(file);
+        });
+
+        photoZoomInput?.addEventListener('input', applyPhotoTransform);
+        resetPhotoEditButton?.addEventListener('click', resetPhotoEdit);
+        cancelPhotoSelectionButton?.addEventListener('click', cancelPhotoSelection);
+
+        profilePhotoPreview?.addEventListener('pointerdown', (event) => {
+            isDragging = true;
+            dragStartX = event.clientX;
+            dragStartY = event.clientY;
+            profilePhotoPreview.setPointerCapture(event.pointerId);
+        });
+
+        profilePhotoPreview?.addEventListener('pointermove', (event) => {
+            if (!isDragging) return;
+            const zoom = Number(photoZoomInput.value || 1);
+            const maxOffset = 70 * (zoom - 1) + 20;
+            panX = clamp(panX + (event.clientX - dragStartX), -maxOffset, maxOffset);
+            panY = clamp(panY + (event.clientY - dragStartY), -maxOffset, maxOffset);
+            dragStartX = event.clientX;
+            dragStartY = event.clientY;
+            applyPhotoTransform();
+        });
+
+        profilePhotoPreview?.addEventListener('pointerup', () => {
+            isDragging = false;
+        });
+
+        profilePhotoPreview?.addEventListener('pointerleave', () => {
+            isDragging = false;
+        });
+
+        document.getElementById('download-profile')?.addEventListener('click', () => {
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+                alert('Não foi possível gerar o PDF neste navegador.');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const margin = 40;
+            const lineHeight = 18;
+            let y = margin;
+
+            const lines = [
+                'LibraryVid - Perfil',
+                '',
+                `Nome: ${profileData.nome}`,
+                `Total de vídeos: ${profileData.total_filmes}`,
+                `Total de livros: ${profileData.total_livros}`,
+                '',
+                'Top 10 dos vídeos:',
+            ];
+
+            if (profileData.top_10.length === 0) {
+                lines.push('Nenhum vídeo no ranking ainda.');
+            } else {
+                profileData.top_10.forEach((video, index) => {
+                    lines.push(`${index + 1}. ${video.titulo} - ${video.genero} - Média: ${Number(video.nota_media || 0).toFixed(2)}`);
+                    lines.push({
+                        text: `Link: ${video.link || 'Não informado'}`,
+                        url: video.link,
+                    });
+                });
+            }
+            lines.push('', 'Top 10 dos livros:');
+            if (profileData.top_10_livros.length === 0) {
+                lines.push('Nenhum livro no ranking ainda.');
+            } else {
+                profileData.top_10_livros.forEach((livro, index) => {
+                    lines.push(`${index + 1}. ${livro.titulo} - ${livro.genero} - Média: ${Number(livro.nota_media || 0).toFixed(2)}`);
+                    lines.push({
+                        text: `Link: ${livro.link || 'Não informado'}`,
+                        url: livro.link,
+                    });
+                });
+            }
+
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(18);
+            doc.text(lines[0], margin, y);
+            y += lineHeight * 2;
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(11);
+
+            for (const entry of lines.slice(1)) {
+                const line = typeof entry === 'string' ? entry : entry.text;
+                const wrappedLines = doc.splitTextToSize(line, pageWidth - margin * 2);
+                for (const wrappedLine of wrappedLines) {
+                    if (y > pageHeight - margin) {
+                        doc.addPage();
+                        y = margin;
+                    }
+
+                    const linkUrl = typeof entry === 'string' ? null : entry.url;
+                    const isWebLink = linkUrl && /^https?:\/\//i.test(linkUrl);
+                    doc.setTextColor(...(isWebLink ? [37, 99, 235] : [0, 0, 0]));
+                    doc.text(wrappedLine, margin, y);
+                    if (isWebLink) {
+                        doc.link(
+                            margin,
+                            y - lineHeight + 3,
+                            Math.min(doc.getTextWidth(wrappedLine), pageWidth - margin * 2),
+                            lineHeight,
+                            { url: linkUrl },
+                        );
+                    }
+                    doc.setTextColor(0, 0, 0);
+                    y += lineHeight;
+                }
+            }
+
+            doc.save('libraryvid-perfil.pdf');
+        });
+
+        document.getElementById('share-profile')?.addEventListener('click', async () => {
+            const videosTop = profileData.top_10.map((video, index) => `${index + 1}. ${video.titulo}`).join('; ') || 'Nenhum vídeo no ranking ainda.';
+            const livrosTop = profileData.top_10_livros.map((livro, index) => `${index + 1}. ${livro.titulo}`).join('; ') || 'Nenhum livro no ranking ainda.';
+            const summary = `${profileData.nome} tem ${profileData.total_filmes} vídeos e ${profileData.total_livros} livros salvos.\nTop vídeos: ${videosTop}\nTop livros: ${livrosTop}`;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Resumo do perfil',
+                        text: summary,
+                    });
+                    return;
+                } catch (error) {
+                    // Usuário cancelou a ação
+                }
+            }
+
+            try {
+                await navigator.clipboard.writeText(summary);
+                const button = document.getElementById('share-profile');
+                if (button) {
+                    const original = button.innerHTML;
+                    button.innerHTML = '<i class="fa-solid fa-check mr-2"></i>Copiado';
+                    setTimeout(() => { button.innerHTML = original; }, 1600);
+                }
+            } catch (error) {
+                alert('Seu navegador não permitiu copiar o resumo.');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('[data-nav]').forEach((link) => {
+                const key = link.getAttribute('data-nav');
+                const shouldActivate = (key === 'library' && currentPath !== '/estatisticas') || (key === 'stats' && currentPath === '/estatisticas');
+                link.classList.toggle('bg-surfaceBorder', shouldActivate);
+                link.classList.toggle('text-white', shouldActivate);
+                link.classList.toggle('text-textMuted', !shouldActivate);
+            });
+        });
+    </script>
+</body>
+</html>

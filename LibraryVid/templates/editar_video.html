@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VidLib - Editar Vídeo</title>
+    <title>LibraryVid - Editar Vídeo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/clay.css') }}">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        background: '#0d0d12',
-                        surface: '#15151c',
-                        surfaceBorder: '#272732',
-                        primary: '#8b5cf6',
-                        primaryHover: '#7c3aed',
-                        textMuted: '#9ca3af'
+                        background: '#EFE7DA',
+                        surface: '#F7F3EB',
+                        surfaceBorder: '#D8D0C1',
+                        primary: '#94946F',
+                        primaryHover: '#777752',
+                        textMuted: '#706F60'
                     },
                     fontFamily: { sans: ['Inter', 'sans-serif'] }
                 }
@@ -31,33 +32,37 @@
 <body class="bg-background text-white min-h-screen flex flex-col relative">
 
     <!-- Header -->
-    <header class="border-b border-surfaceBorder bg-background px-8 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-2 text-xl font-bold">
+    <header class="border-b border-surfaceBorder bg-background px-4 sm:px-8 py-4 flex flex-wrap justify-between items-center gap-3">
+        <a href="{{ url_for('homepage', tipo=tipo) }}" class="flex items-center gap-2 text-xl font-bold transition-colors hover:text-primary">
             <div class="w-8 h-8 bg-primary rounded flex items-center justify-center">
                 <i class="fa-solid fa-play text-white text-sm"></i>
             </div>
-            VidLib
-        </div>
-        <div class="flex bg-surface rounded-md border border-surfaceBorder p-1">
-            <a href="{{ url_for('homepage') }}" class="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors text-textMuted hover:text-white">
-                <i class="fa-solid fa-layer-group"></i> Biblioteca
-            </a>
-            <a href="{{ url_for('estatisticas') }}" class="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors text-textMuted hover:text-white">
-                <i class="fa-solid fa-chart-simple"></i> Estatísticas
-            </a>
+            LibraryVid
+        </a>
+        <div class="ml-auto flex items-center gap-2 sm:gap-3">
+            <form action="{{ url_for('logout') }}" method="post"><button class="inline-flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-textMuted transition-colors hover:bg-surface hover:text-white"><i class="fa-solid fa-right-from-bracket"></i>Sair</button></form>
+            <nav class="flex shrink-0 bg-surface rounded-md border border-surfaceBorder p-1">
+                <a href="{{ url_for('homepage', tipo=tipo) }}" data-nav="library" class="nav-link flex items-center gap-2 px-2 sm:px-4 py-2 rounded text-sm font-medium transition-colors {% if request.endpoint != 'estatisticas' %}bg-surfaceBorder text-white{% else %}text-textMuted hover:text-white{% endif %}">
+                    <i class="fa-solid fa-layer-group"></i> Biblioteca
+                </a>
+                <a href="{{ url_for('estatisticas', tipo=tipo) }}" data-nav="stats" class="nav-link flex items-center gap-2 px-2 sm:px-4 py-2 rounded text-sm font-medium transition-colors {% if request.endpoint == 'estatisticas' %}bg-surfaceBorder text-white{% else %}text-textMuted hover:text-white{% endif %}">
+                    <i class="fa-solid fa-chart-simple"></i> Estatísticas
+                </a>
+            </nav>
         </div>
     </header>
 
     <!-- Conteúdo Principal -->
     <main class="flex-1 max-w-5xl w-full mx-auto p-8 flex flex-col">
         <div class="flex items-center gap-4 mb-8">
-            <a href="{{ url_for('homepage') }}" class="text-textMuted hover:text-white transition-colors">
+            <a href="{{ url_for('homepage', tipo=tipo) }}" class="text-textMuted hover:text-white transition-colors">
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
-            <h1 class="text-2xl font-bold">Editar Vídeo</h1>
+            <h1 class="text-2xl font-bold">Editar {{ 'livro' if tipo == 'livro' else 'vídeo' }}</h1>
         </div>
-        
+
         <form action="{{ url_for('editar_video', video_id=video.id) }}" method="post" enctype="multipart/form-data" class="max-w-3xl w-full mx-auto space-y-6 pb-12">
+            <input type="hidden" name="tipo" value="{{ tipo }}">
             <!-- Upload de Capa -->
             <div>
                 <label class="block text-xs font-bold text-textMuted uppercase mb-2">Imagem de Capa</label>
@@ -76,18 +81,22 @@
             <!-- Inputs -->
             <div>
                 <label class="block text-xs font-bold text-textMuted uppercase mb-2">Título *</label>
-                <input name="titulo" type="text" placeholder="Nome do vídeo" value="{{ video.titulo or '' }}" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary">
+                <input name="titulo" type="text" required placeholder="{{ 'Título do livro' if tipo == 'livro' else 'Título do vídeo' }}" value="{{ video.titulo or '' }}" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary">
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-textMuted uppercase mb-2">Autor / Criador *</label>
-                <input name="autor" type="text" placeholder="Canal ou nome do criador" value="{{ video.autor or '' }}" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary">
+                <label class="block text-xs font-bold text-textMuted uppercase mb-2">{{ 'Autor(a)' if tipo == 'livro' else 'Autor / Criador' }} *</label>
+                <input name="autor" type="text" required placeholder="{{ 'Nome do autor' if tipo == 'livro' else 'Canal ou nome do criador' }}" value="{{ video.autor or '' }}" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary">
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-textMuted uppercase mb-2">Gênero</label>
                 <select name="genero" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary appearance-none">
+                    {% if tipo == 'livro' %}
+                    {% set genres = ['Ficção', 'Fantasia', 'Romance', 'Mistério', 'Terror', 'Aventura', 'Biografia', 'História', 'Autoajuda', 'Outro'] %}
+                    {% else %}
                     {% set genres = ['Drama', 'Comédia', 'Terror', 'Ação', 'Ficção Científica', 'Animação', 'Aventura', 'Documentário', 'Romance', 'Outro'] %}
+                    {% endif %}
                     {% for genre in genres %}
                     <option value="{{ genre }}" {% if video.genero == genre %}selected{% endif %}>{{ genre }}</option>
                     {% endfor %}
@@ -95,18 +104,13 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-textMuted uppercase mb-2">Link do Vídeo *</label>
-                <input name="link" type="url" placeholder="https://..." value="{{ video.link or '' }}" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary">
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-textMuted uppercase mb-2">Análise da IA</label>
-                <textarea name="analise" placeholder="Cole aqui um resumo ou análise gerada por IA..." rows="4" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary resize-none">{{ video.analise or '' }}</textarea>
+                <label class="block text-xs font-bold text-textMuted uppercase mb-2">{{ 'Link do livro *' if tipo == 'livro' else 'Link do vídeo *' }}</label>
+                <input name="link" type="url" required placeholder="https://..." value="{{ video.link or '' }}" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary">
             </div>
 
             <!-- Botões de Ação -->
             <div class="flex gap-4 pt-4">
-                <button type="button" onclick="window.history.back()" class="flex-1 py-3 bg-transparent border border-surfaceBorder rounded-lg font-medium hover:bg-surface transition-colors">Cancelar</button>
+                <button type="button" onclick="window.location.href='{{ url_for('homepage', tipo=tipo) }}'" class="flex-1 py-3 bg-transparent border border-surfaceBorder rounded-lg font-medium hover:bg-surface transition-colors">Cancelar</button>
                 <button type="submit" class="flex-1 py-3 bg-primary hover:bg-primaryHover text-white rounded-lg font-medium transition-colors">Salvar Alterações</button>
             </div>
         </form>

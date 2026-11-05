@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibraryVid - Biblioteca Vazia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/clay.css') }}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#EFE7DA',
+                        surface: '#F7F3EB',
+                        surfaceBorder: '#D8D0C1',
+                        primary: '#94946F',
+                        primaryHover: '#777752',
+                        textMuted: '#706F60'
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-white min-h-screen flex flex-col relative">
+    <div id="app-loader" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#0d0d12]/80 backdrop-blur-sm">
+        <div class="flex flex-col items-center gap-4 rounded-2xl border border-violet-500/30 bg-[#15151c]/90 px-8 py-6 shadow-[0_0_25px_rgba(139,92,246,0.25)]">
+            <div class="h-12 w-12 animate-spin rounded-full border-4 border-violet-500/25 border-t-violet-500"></div>
+            <p id="app-loader-text" class="text-sm font-medium text-violet-200">Carregando…</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="border-b border-surfaceBorder bg-background px-4 sm:px-8 py-4 flex flex-wrap justify-between items-center gap-3">
+        <a href="{{ url_for('homepage', tipo=tipo) }}" class="flex items-center gap-2 text-xl font-bold transition-colors hover:text-primary">
+            <div class="w-8 h-8 bg-primary rounded flex items-center justify-center">
+                <i class="fa-solid fa-play text-white text-sm"></i>
+            </div>
+            LibraryVid
+        </a>
+        <div class="ml-auto flex items-center gap-2 sm:gap-3">
+            {% if session.get('usuario_id') %}
+            <form action="{{ url_for('logout') }}" method="post"><button class="inline-flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-textMuted transition-colors hover:bg-surface hover:text-white"><i class="fa-solid fa-right-from-bracket"></i>Sair</button></form>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="text-textMuted hover:text-white">Entrar</a>
+            <a href="{{ url_for('cadastro') }}" class="rounded bg-primary px-3 py-2 font-medium text-white hover:bg-primaryHover">Cadastrar</a>
+            {% endif %}
+            <nav class="flex shrink-0 bg-surface rounded-md border border-surfaceBorder p-1">
+                <a href="{{ url_for('homepage', tipo=tipo) }}" data-route="/" class="nav-link flex items-center gap-2 px-2 sm:px-4 py-2 rounded text-sm font-medium transition-colors text-textMuted hover:text-white">
+                    <i class="fa-solid fa-layer-group"></i> Biblioteca
+                </a>
+                <a href="{{ url_for('estatisticas', tipo=tipo) }}" data-route="/estatisticas" class="nav-link flex items-center gap-2 px-2 sm:px-4 py-2 rounded text-sm font-medium transition-colors text-textMuted hover:text-white">
+                    <i class="fa-solid fa-chart-simple"></i> Estatísticas
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-8 flex flex-col">
+        <section class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2" aria-label="Escolher biblioteca">
+            <a href="{{ url_for('homepage', tipo='video') }}" class="rounded-2xl border p-5 transition-all hover:-translate-y-1 {% if tipo == 'video' %}border-primary bg-primary/10 shadow-lg{% else %}border-surfaceBorder bg-surface hover:border-primary/50{% endif %}">
+                <span class="flex items-center gap-3 text-lg font-semibold"><i class="fa-solid fa-film text-primary"></i> Filmes e vídeos</span>
+                <span class="mt-2 block text-sm text-textMuted">Cadastre, pesquise e avalie vídeos.</span>
+            </a>
+            <a href="{{ url_for('homepage', tipo='livro') }}" class="rounded-2xl border p-5 transition-all hover:-translate-y-1 {% if tipo == 'livro' %}border-primary bg-primary/10 shadow-lg{% else %}border-surfaceBorder bg-surface hover:border-primary/50{% endif %}">
+                <span class="flex items-center gap-3 text-lg font-semibold"><i class="fa-solid fa-book-open text-primary"></i> Livros</span>
+                <span class="mt-2 block text-sm text-textMuted">Guarde links, organize e avalie livros.</span>
+            </a>
+        </section>
+
+        <!-- Search Bar -->
+        <form action="{{ url_for('search') }}" method="get" data-loading-label="Procurando resultados…" class="relative w-full mb-6 transition-all duration-200 hover:scale-[1.01]">
+            <input type="hidden" name="tipo" value="{{ tipo }}">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-textMuted"></i>
+            <input name="q" type="text" placeholder="Buscar por {{ 'título ou autor' if tipo == 'livro' else 'título ou criador' }}..." value="{{ request.args.get('q', '') }}" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 pl-10 pr-4 text-sm focus:outline-none focus:border-primary transition-colors text-white placeholder-textMuted">
+        </form>
+
+        <div class="w-full mb-8">
+            <label class="mb-3 block text-[10px] font-semibold uppercase tracking-[0.12em] text-textMuted">
+                Filtrar por gênero
+            </label>
+            <form method="get" class="w-full">
+                <input type="hidden" name="tipo" value="{{ tipo }}">
+                <select name="genero" onchange="this.form.submit()" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary transition-colors text-white appearance-none">
+                    <option value="">Todos os gêneros</option>
+                    {% for genre in generos %}
+                    <option value="{{ genre }}" {% if genero_selecionado == genre %}selected{% endif %}>{{ genre }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+
+        <!-- Lista de Vídeos / Empty State -->
+        {% if videos and videos|length > 0 %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for video in videos %}
+            <article class="group relative overflow-hidden rounded-2xl border border-surfaceBorder bg-surface shadow-[0_0_0_1px_rgba(255,255,255,0.02)] transition-all duration-300 hover:-translate-y-1 hover:border-primary/60 hover:shadow-[0_12px_30px_rgba(139,92,246,0.18)]">
+                <div class="flex gap-4 p-4">
+                    <div class="w-28 h-40 overflow-hidden rounded-xl border border-surfaceBorder bg-surfaceBorder/80 shadow-inner">
+                        {% if video.imagem %}
+                        <img src="{{ url_for('static', filename='uploads/' ~ video.imagem) }}" alt="{{ video.titulo }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                        {% else %}
+                        <div class="flex h-full w-full items-center justify-center text-textMuted">
+                            <i class="fa-solid {{ 'fa-book-open' if tipo == 'livro' else 'fa-film' }} text-3xl"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex min-w-0 flex-1 flex-col">
+                        <div class="mb-2 flex items-start justify-between gap-2">
+                            <div class="min-w-0">
+                                <h3 class="truncate text-lg font-semibold text-white">{{ video.titulo or 'Sem título' }}</h3>
+                                <p class="truncate text-sm text-textMuted">{{ video.autor or 'Autor desconhecido' }}</p>
+                            </div>
+                            <span class="whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-purple-300">
+                                {{ video.genero or '—' }}
+                            </span>
+                        </div>
+
+                        <a href="{{ url_for('exibir_analise', video_id=video.id) }}" class="mt-1 block rounded-lg border border-surfaceBorder bg-background/30 p-2 text-left text-sm leading-relaxed text-textMuted transition-colors hover:border-primary/50 hover:text-white">
+                            <span class="mb-1 block text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
+                                <i class="fa-solid {{ 'fa-book-open' if tipo == 'livro' else 'fa-robot' }} mr-1"></i> {{ 'Resumo do livro' if tipo == 'livro' else 'Análise da IA' }}
+                            </span>
+                            <span class="line-clamp-3 block">
+                                {{ (video.analise or 'Análise da IA ainda não disponível.')|truncate(150, True, '...') }}
+                            </span>
+                        </a>
+
+                        <div class="mt-3 flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-0.5" aria-label="Avaliar {{ video.titulo }}">
+                                {% for nota in range(1, 6) %}
+                                <form action="{{ url_for('avaliar_video', video_id=video.id) }}" method="post">
+                                    <input type="hidden" name="tipo" value="{{ tipo }}">
+                                    <button type="submit" name="nota" value="{{ nota }}" title="Dar {{ nota }} estrela{{ 's' if nota != 1 else '' }}" class="p-0.5 text-base transition-colors hover:text-primary {{ 'text-primary' if video.media_avaliacao >= nota else 'text-surfaceBorder' }}">
+                                        <i class="{{ 'fa-solid' if video.media_avaliacao >= nota else 'fa-regular' }} fa-star"></i>
+                                    </button>
+                                </form>
+                                {% endfor %}
+                            </div>
+                            <span class="text-[10px] text-textMuted">{{ video.total_avaliacoes }} voto{{ 's' if video.total_avaliacoes != 1 else '' }}</span>
+                        </div>
+
+                        <div class="mt-4 flex flex-wrap items-center gap-3 pt-2 text-sm">
+                            <a href="{{ video.link or '#' }}" target="_blank" class="text-primary transition-colors hover:text-white hover:underline">
+                                <i class="fa-solid fa-external-link-alt mr-1"></i> Abrir link
+                            </a>
+                            <a href="{{ url_for('editar_video', video_id=video.id, tipo=tipo) }}" class="text-textMuted transition-colors hover:text-white">
+                                <i class="fa-solid fa-pencil mr-1"></i> Editar
+                            </a>
+                            <form action="{{ url_for('deletar_video', video_id=video.id) }}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir este item?');" class="inline-block">
+                                <input type="hidden" name="tipo" value="{{ tipo }}">
+                                <button type="submit" class="text-red-400 transition-colors hover:text-red-300">
+                                    <i class="fa-solid fa-trash mr-1"></i> Excluir
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="flex-1 flex flex-col items-center justify-center text-center">
+            <div class="text-textMuted text-5xl mb-4 opacity-50">
+                <i class="fa-regular fa-folder-open"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">Biblioteca vazia</h2>
+            <p class="text-textMuted mb-6 max-w-sm">Adicione seu primeiro {{ 'livro' if tipo == 'livro' else 'vídeo' }} e comece a construir sua coleção pessoal.</p>
+            <a href="{{ url_for('videonovo', tipo=tipo) }}" class="bg-primary hover:bg-primaryHover text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors shadow-[0_0_15px_rgba(139,92,246,0.3)]">
+                <i class="fa-solid fa-plus"></i> Adicionar primeiro {{ 'livro' if tipo == 'livro' else 'vídeo' }}
+            </a>
+        </div>
+        {% endif %}
+    </main>
+
+    <!-- FAB -->
+    <div class="fab-menu fixed bottom-8 right-8 z-30 flex flex-col items-end gap-3">
+        <div class="fab-options flex flex-col items-end gap-3 opacity-0 translate-y-4 pointer-events-none transition-all duration-300 ease-out">
+            <a href="{{ url_for('perfil') }}" class="group flex items-center gap-3 text-white">
+                <span class="rounded-full border border-surfaceBorder bg-surface/90 px-3 py-2 text-xs font-medium text-white shadow-lg backdrop-blur-sm">Meu perfil</span>
+                <span class="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-lg shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-colors group-hover:bg-primaryHover">
+                    <i class="fa-solid fa-user"></i>
+                </span>
+            </a>
+            <a href="{{ url_for('videonovo', tipo=tipo) }}" class="group flex items-center gap-3 text-white">
+                <span class="rounded-full border border-surfaceBorder bg-surface/90 px-3 py-2 text-xs font-medium text-white shadow-lg backdrop-blur-sm">Adicionar {{ 'livro' if tipo == 'livro' else 'vídeos' }}</span>
+                <span class="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-lg shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-colors group-hover:bg-primaryHover">
+                    <i class="fa-solid {{ 'fa-book-open' if tipo == 'livro' else 'fa-video' }}"></i>
+                </span>
+            </a>
+            <a href="{{ url_for('parceiros') }}" class="group flex items-center gap-3 text-white">
+                <span class="rounded-full border border-surfaceBorder bg-surface/90 px-3 py-2 text-xs font-medium text-white shadow-lg backdrop-blur-sm">Ver parceiros</span>
+                <span class="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-lg shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-colors group-hover:bg-primaryHover">
+                    <i class="fa-solid fa-user-group"></i>
+                </span>
+            </a>
+        </div>
+
+        <button id="fab-toggle" type="button" aria-label="Abrir ações" class="fab-toggle flex h-14 w-14 items-center justify-center rounded-full bg-primary text-xl text-white shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-all duration-300 hover:bg-primaryHover">
+            <i class="fa-solid fa-plus transition-transform duration-300"></i>
+        </button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const links = document.querySelectorAll('.nav-link');
+            const currentPath = window.location.pathname;
+
+            links.forEach(link => {
+                const route = link.getAttribute('data-route');
+                const isActive = route === currentPath || (route === '/' && currentPath === '/');
+                if (isActive) {
+                    link.classList.add('bg-surfaceBorder', 'text-white');
+                    link.classList.remove('text-textMuted');
+                } else {
+                    link.classList.remove('bg-surfaceBorder', 'text-white');
+                    link.classList.add('text-textMuted');
+                }
+            });
+
+            const fabMenu = document.querySelector('.fab-menu');
+            const fabToggle = document.getElementById('fab-toggle');
+            const fabOptions = document.querySelector('.fab-options');
+
+            if (fabMenu && fabToggle && fabOptions) {
+                const updateFabState = () => {
+                    const isOpen = fabMenu.classList.contains('menu-open');
+                    fabOptions.classList.toggle('opacity-0', !isOpen);
+                    fabOptions.classList.toggle('translate-y-4', !isOpen);
+                    fabOptions.classList.toggle('pointer-events-none', !isOpen);
+                    fabOptions.classList.toggle('opacity-100', isOpen);
+                    fabOptions.classList.toggle('translate-y-0', isOpen);
+                    fabOptions.classList.toggle('pointer-events-auto', isOpen);
+
+                    const icon = fabToggle.querySelector('i');
+                    if (icon) {
+                        icon.style.transform = isOpen ? 'rotate(90deg)' : 'rotate(0deg)';
+                    }
+                };
+
+                fabToggle.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    fabMenu.classList.toggle('menu-open');
+                    updateFabState();
+                });
+
+                document.addEventListener('click', (event) => {
+                    if (!fabMenu.contains(event.target)) {
+                        fabMenu.classList.remove('menu-open');
+                        updateFabState();
+                    }
+                });
+
+                updateFabState();
+            }
+        });
+    </script>
+
+</body>
+</html>

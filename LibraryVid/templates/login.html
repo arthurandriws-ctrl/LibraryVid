@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibraryVid - login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/clay.css') }}">
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .auth-ambient {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            opacity: 0.08;
+        }
+
+        .brand-diagonal {
+            position: absolute;
+            inset: -10% -10% -10% -10%;
+            display: grid;
+            place-items: center;
+            filter: drop-shadow(0 0 16px rgba(119, 119, 82, 0.16));
+        }
+
+        .brand-diagonal .brand-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 1rem;
+            background: rgba(148, 148, 111, 0.18);
+            border: 1px solid rgba(109, 104, 82, 0.28);
+            box-shadow: 0 0 22px rgba(148, 148, 111, 0.12);
+            color: rgba(119, 119, 82, 0.85);
+        }
+
+        .brand-diagonal .brand-mark {
+            position: absolute;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 3.3rem;
+            height: 3.3rem;
+            border-radius: 1rem;
+            background: rgba(148, 148, 111, 0.1);
+            border: 1px solid rgba(109, 104, 82, 0.2);
+            color: rgba(119, 119, 82, 0.65);
+            box-shadow: 0 0 12px rgba(148, 148, 111, 0.08);
+            animation: drift 32s ease-in-out infinite;
+        }
+
+        .brand-diagonal .brand-mark:nth-child(1) { top: 12%; left: 18%; --tilt: -24deg; animation-delay: 0s; }
+        .brand-diagonal .brand-mark:nth-child(2) { top: 18%; right: 18%; --tilt: 22deg; animation-delay: 1.4s; }
+        .brand-diagonal .brand-mark:nth-child(3) { top: 42%; left: 12%; --tilt: 18deg; animation-delay: 2.7s; }
+        .brand-diagonal .brand-mark:nth-child(4) { top: 46%; right: 14%; --tilt: -20deg; animation-delay: 3.4s; }
+        .brand-diagonal .brand-mark:nth-child(5) { bottom: 18%; left: 27%; --tilt: 30deg; animation-delay: 1.8s; }
+        .brand-diagonal .brand-mark:nth-child(6) { bottom: 20%; right: 26%; --tilt: -18deg; animation-delay: 2.9s; }
+        .brand-diagonal .brand-mark:nth-child(7) { top: 52%; left: 44%; --tilt: -12deg; animation-delay: 4.2s; }
+        .brand-diagonal .brand-mark:nth-child(8) { top: 24%; left: 46%; --tilt: 16deg; animation-delay: 5.1s; }
+
+        @keyframes drift {
+            0% {
+                transform: translate3d(0, 0, 0) rotate(var(--tilt)) scale(0.97);
+                opacity: 0.07;
+            }
+            20% {
+                transform: translate3d(7px, -10px, 0) rotate(calc(var(--tilt) + 4deg)) scale(1.01);
+                opacity: 0.12;
+            }
+            50% {
+                transform: translate3d(-6px, 12px, 0) rotate(calc(var(--tilt) - 3deg)) scale(0.99);
+                opacity: 0.11;
+            }
+            75% {
+                transform: translate3d(10px, -8px, 0) rotate(calc(var(--tilt) + 5deg)) scale(1.02);
+                opacity: 0.13;
+            }
+            100% {
+                transform: translate3d(-4px, 10px, 0) rotate(calc(var(--tilt) - 2deg)) scale(0.98);
+                opacity: 0.08;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-[#0d0d12] text-white flex items-center justify-center p-6 relative overflow-hidden">
+    <div class="auth-ambient" aria-hidden="true">
+        <div class="brand-diagonal">
+            <span class="brand-mark"><i class="fa-solid fa-play text-sm"></i></span>
+            <span class="brand-mark"><i class="fa-solid fa-play text-sm"></i></span>
+            <span class="brand-mark"><i class="fa-solid fa-play text-sm"></i></span>
+            <span class="brand-mark"><i class="fa-solid fa-play text-sm"></i></span>
+            <span class="brand-mark"><i class="fa-solid fa-play text-sm"></i></span>
+            <span class="brand-mark"><i class="fa-solid fa-play text-sm"></i></span>
+            <span class="brand-mark"><i class="fa-solid fa-play text-sm"></i></span>
+            <span class="brand-mark"><i class="fa-solid fa-play text-sm"></i></span>
+        </div>
+    </div>
+
+    <div id="app-loader" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#0d0d12]/80 backdrop-blur-sm">
+        <div class="flex flex-col items-center gap-4 rounded-2xl border border-violet-500/30 bg-[#15151c]/90 px-8 py-6 shadow-[0_0_25px_rgba(139,92,246,0.25)]">
+            <div class="h-12 w-12 animate-spin rounded-full border-4 border-violet-500/25 border-t-violet-500"></div>
+            <p id="app-loader-text" class="text-sm font-medium text-violet-200">Carregando…</p>
+        </div>
+    </div>
+    <main class="relative z-10 w-full max-w-md rounded-2xl border border-[#272732] bg-[#15151c]/90 p-8 shadow-[0_20px_60px_rgba(15,15,20,0.8)] backdrop-blur-sm transition-all duration-300">
+        <div class="flex justify-center">
+            <a href="{{ url_for('homepage') }}" class="flex items-center justify-center gap-3 text-2xl font-bold transition-opacity duration-200 hover:opacity-90">
+                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-600 shadow-[0_0_20px_rgba(139,92,246,0.35)]">
+                    <i class="fa-solid fa-play text-sm"></i>
+                </span>
+                <span>LibraryVid</span>
+            </a>
+        </div>
+        <h1 class="mt-8 text-2xl font-semibold text-center">Seja Bem Vindo de volta!</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+            <p class="mt-4 rounded border {% if category == 'success' %}border-emerald-300 bg-emerald-100 text-emerald-800{% else %}border-red-300 bg-red-100 text-red-800{% endif %} p-3 text-sm">{{ message }}</p>
+            {% endfor %}
+        {% endwith %}
+        <form method="post" data-loading-label="Entrando…" class="mt-6 space-y-4 transition-all duration-300 hover:scale-[1.01]">
+            <label class="block text-left text-sm">E-mail<input required type="email" name="email" autocomplete="email" class="mt-2 w-full rounded-lg border border-[#272732] bg-[#0d0d12] p-3 transition-colors duration-200 focus:border-violet-500 focus:outline-none"></label>
+            <label class="block text-left text-sm">Senha<input required type="password" name="senha" autocomplete="current-password" class="mt-2 w-full rounded-lg border border-[#272732] bg-[#0d0d12] p-3 transition-colors duration-200 focus:border-violet-500 focus:outline-none"></label>
+            <button class="w-full rounded-lg bg-violet-600 p-3 font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:bg-violet-500">Entrar</button>
+        </form>
+        <div class="mt-4 flex items-center justify-between text-sm">
+            <a class="text-violet-300 hover:text-white" href="{{ url_for('esqueci_senha') }}">Esqueci a senha</a>
+            <span class="text-gray-400">Ainda não tem conta? <a class="text-violet-300 hover:text-white" href="{{ url_for('cadastro') }}">Cadastre-se</a></span>
+        </div>
+    </main>
+</body>
+</html>

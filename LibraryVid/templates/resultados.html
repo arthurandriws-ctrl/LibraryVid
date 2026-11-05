@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibraryVid - Resultados da Busca</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/clay.css') }}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#EFE7DA',
+                        surface: '#F7F3EB',
+                        surfaceBorder: '#D8D0C1',
+                        primary: '#94946F',
+                        primaryHover: '#777752',
+                        textMuted: '#706F60'
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-white min-h-screen flex flex-col relative">
+    <div id="app-loader" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#0d0d12]/80 backdrop-blur-sm">
+        <div class="flex flex-col items-center gap-4 rounded-2xl border border-violet-500/30 bg-[#15151c]/90 px-8 py-6 shadow-[0_0_25px_rgba(139,92,246,0.25)]">
+            <div class="h-12 w-12 animate-spin rounded-full border-4 border-violet-500/25 border-t-violet-500"></div>
+            <p id="app-loader-text" class="text-sm font-medium text-violet-200">Carregando…</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="border-b border-surfaceBorder bg-background px-4 sm:px-8 py-4 flex flex-wrap justify-between items-center gap-3">
+        <a href="{{ url_for('homepage', tipo=tipo) }}" class="flex items-center gap-2 text-xl font-bold transition-colors hover:text-primary">
+            <div class="w-8 h-8 bg-primary rounded flex items-center justify-center">
+                <i class="fa-solid fa-play text-white text-sm"></i>
+            </div>
+            LibraryVid
+        </a>
+        <div class="ml-auto flex items-center gap-2 sm:gap-3">
+            <form action="{{ url_for('logout') }}" method="post"><button class="inline-flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-textMuted transition-colors hover:bg-surface hover:text-white"><i class="fa-solid fa-right-from-bracket"></i>Sair</button></form>
+            <nav class="flex shrink-0 bg-surface rounded-md border border-surfaceBorder p-1">
+                <a href="{{ url_for('homepage', tipo=tipo) }}" data-nav="library" class="nav-link flex items-center gap-2 px-2 sm:px-4 py-2 rounded text-sm font-medium transition-colors text-textMuted hover:text-white">
+                    <i class="fa-solid fa-layer-group"></i> Biblioteca
+                </a>
+                <a href="{{ url_for('estatisticas', tipo=tipo) }}" data-nav="stats" class="nav-link flex items-center gap-2 px-2 sm:px-4 py-2 rounded text-sm font-medium transition-colors text-textMuted hover:text-white">
+                    <i class="fa-solid fa-chart-simple"></i> Estatísticas
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-8 flex flex-col">
+        <div class="mb-6 flex items-center justify-between gap-3">
+            <button type="button" onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href = '{{ url_for('homepage', tipo=tipo) }}'; }" class="inline-flex items-center gap-2 rounded-lg border border-surfaceBorder bg-surface px-4 py-2 text-sm text-textMuted transition-colors hover:border-primary/50 hover:text-white">
+                <i class="fa-solid fa-arrow-left"></i> Voltar
+            </button>
+        </div>
+
+        <!-- Barra de Busca (Mantida no topo com o termo pesquisado) -->
+        <form action="{{ url_for('search') }}" method="get" data-loading-label="Procurando resultados…" class="relative w-full mb-8 transition-all duration-200 hover:scale-[1.01]">
+            <input type="hidden" name="tipo" value="{{ tipo }}">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-textMuted"></i>
+            <input name="q" type="text" value="{{ query }}" class="w-full bg-surface border border-surfaceBorder rounded-lg py-3 pl-10 pr-4 text-sm focus:outline-none focus:border-primary transition-colors text-white">
+        </form>
+
+        {% if results and results|length > 0 %}
+        <p class="text-sm text-textMuted mb-6">Resultados de {{ 'livros' if tipo == 'livro' else 'filmes e vídeos' }} para "<span class="text-white font-medium">{{ query }}</span>"</p>
+
+        <!-- SEÇÃO 1: MELHOR CORRESPONDÊNCIA (Resultado Principal) -->
+        <section class="mb-12">
+            <h2 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-4">Melhor Correspondência</h2>
+
+            {% set best = results[0] %}
+            <a href="{{ url_for('exibir_analise', video_id=best.id) }}" class="bg-surface border border-surfaceBorder rounded-xl p-6 flex flex-col md:flex-row gap-6 items-start group hover:border-primary/50 transition-colors">
+                <!-- Capa do Vídeo -->
+                <div class="w-full md:w-64 aspect-video md:aspect-[4/3] bg-surfaceBorder rounded-lg flex items-center justify-center border border-surfaceBorder overflow-hidden relative">
+                    {% if best.imagem %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ best.imagem) }}" alt="{{ best.titulo }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <i class="fa-solid fa-image text-textMuted text-3xl"></i>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <i class="fa-solid {{ 'fa-book-open' if tipo == 'livro' else 'fa-play' }} text-white text-2xl"></i>
+                    </div>
+                </div>
+
+                <!-- Detalhes do Vídeo -->
+                <div class="flex-1 w-full flex flex-col h-full justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold group-hover:text-primary transition-colors">{{ best.titulo }}</h3>
+                            <div class="flex gap-1 text-primary items-center">
+                                <i class="fa-solid fa-star text-sm"></i>
+                                <i class="fa-solid fa-star text-sm"></i>
+                                <i class="fa-solid fa-star text-sm"></i>
+                                <i class="fa-solid fa-star text-sm"></i>
+                                <i class="fa-solid fa-star text-sm"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-textMuted mb-4">Por <span class="text-white">{{ best.autor }}</span></p>
+                        <div class="inline-block bg-primary/10 border border-primary/30 text-purple-400 px-3 py-1 rounded text-xs font-medium mb-4">
+                            {{ best.genero or '—' }}
+                        </div>
+
+                        <div class="bg-background/50 border border-surfaceBorder rounded-lg p-3 text-sm text-textMuted">
+                            <span class="text-primary font-medium text-xs block mb-1"><i class="fa-solid {{ 'fa-book-open' if tipo == 'livro' else 'fa-robot' }} mr-1"></i> {{ 'RESUMO DO LIVRO' if tipo == 'livro' else 'ANÁLISE DA IA' }}</span>
+                            {{ best.analise or 'Sem análise disponível.' }}
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </section>
+
+        {% if results|length > 1 %}
+        <section>
+            <h2 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-4">Outros resultados</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {% for item in results[1:] %}
+                <article class="bg-surface border border-surfaceBorder rounded-xl p-4 flex flex-col justify-between hover:border-primary/50 transition-colors group">
+                    <div>
+                        <div class="w-full aspect-video bg-surfaceBorder rounded-lg flex items-center justify-center overflow-hidden mb-3 relative">
+                            {% if item.imagem %}
+                            <img src="{{ url_for('static', filename='uploads/' ~ item.imagem) }}" alt="{{ item.titulo }}" class="w-full h-full object-cover">
+                            {% else %}
+                            <i class="fa-solid fa-image text-textMuted text-xl"></i>
+                            {% endif %}
+                        </div>
+                        <h4 class="font-bold text-sm mb-1 group-hover:text-primary transition-colors truncate">{{ item.titulo }}</h4>
+                        <p class="text-xs text-textMuted mb-3 truncate">{{ item.autor }}</p>
+                        <p class="text-xs text-textMuted line-clamp-3 mb-3">{{ item.analise or 'Sem análise disponível.' }}</p>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t border-surfaceBorder/50 gap-2">
+                        <div class="bg-primary/10 border border-primary/20 text-purple-400 px-2 py-0.5 rounded text-[10px] font-medium">
+                            {{ item.genero or '—' }}
+                        </div>
+                        <div class="flex gap-2 items-center text-xs">
+                            <a href="{{ item.link or '#' }}" target="_blank" class="text-primary hover:underline">Abrir</a>
+                            <a href="{{ url_for('editar_video', video_id=item.id, tipo=tipo) }}" class="text-textMuted hover:text-white"><i class="fa-solid fa-pencil"></i></a>
+                            <form action="{{ url_for('deletar_video', video_id=item.id) }}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir este item?');">
+                                <input type="hidden" name="tipo" value="{{ tipo }}">
+                                <button type="submit" class="text-red-500 hover:text-red-400"><i class="fa-solid fa-trash"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        {% else %}
+        <p class="text-sm text-textMuted mb-6">Não encontramos {{ 'livro' if tipo == 'livro' else 'vídeo' }} correspondente a "<span class="text-white font-medium">{{ query }}</span>"</p>
+        {% endif %}
+
+    </main>
+
+    <!-- Floating Action Button (+) -->
+    <div class="fab-menu fixed bottom-8 right-8 z-30 flex flex-col items-end gap-3">
+        <div class="fab-options flex flex-col items-end gap-3 opacity-0 translate-y-4 pointer-events-none transition-all duration-300 ease-out">
+            <a href="{{ url_for('perfil') }}" class="group flex items-center gap-3 text-white">
+                <span class="rounded-full border border-surfaceBorder bg-surface/90 px-3 py-2 text-xs font-medium text-white shadow-lg backdrop-blur-sm">Meu perfil</span>
+                <span class="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-lg shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-colors group-hover:bg-primaryHover">
+                    <i class="fa-solid fa-user"></i>
+                </span>
+            </a>
+            <a href="{{ url_for('videonovo', tipo=tipo) }}" class="group flex items-center gap-3 text-white">
+                <span class="rounded-full border border-surfaceBorder bg-surface/90 px-3 py-2 text-xs font-medium text-white shadow-lg backdrop-blur-sm">Adicionar {{ 'livro' if tipo == 'livro' else 'vídeo' }}</span>
+                <span class="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-lg shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-colors group-hover:bg-primaryHover">
+                    <i class="fa-solid {{ 'fa-book-open' if tipo == 'livro' else 'fa-video' }}"></i>
+                </span>
+            </a>
+            <a href="{{ url_for('parceiros') }}" class="group flex items-center gap-3 text-white">
+                <span class="rounded-full border border-surfaceBorder bg-surface/90 px-3 py-2 text-xs font-medium text-white shadow-lg backdrop-blur-sm">Ver parceiros</span>
+                <span class="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-lg shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-colors group-hover:bg-primaryHover">
+                    <i class="fa-solid fa-user-group"></i>
+                </span>
+            </a>
+        </div>
+
+        <button id="fab-toggle" type="button" aria-label="Abrir ações" class="fab-toggle flex h-14 w-14 items-center justify-center rounded-full bg-primary text-xl text-white shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-all duration-300 hover:bg-primaryHover">
+            <i class="fa-solid fa-plus transition-transform duration-300"></i>
+        </button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('[data-nav]').forEach((link) => {
+                const key = link.getAttribute('data-nav');
+                const shouldActivate = (key === 'library' && currentPath !== '/estatisticas') || (key === 'stats' && currentPath === '/estatisticas');
+                link.classList.toggle('bg-surfaceBorder', shouldActivate);
+                link.classList.toggle('text-white', shouldActivate);
+                link.classList.toggle('text-textMuted', !shouldActivate);
+            });
+
+            const fabMenu = document.querySelector('.fab-menu');
+            const fabToggle = document.getElementById('fab-toggle');
+            const fabOptions = document.querySelector('.fab-options');
+
+            if (fabMenu && fabToggle && fabOptions) {
+                const updateFabState = () => {
+                    const isOpen = fabMenu.classList.contains('menu-open');
+                    fabOptions.classList.toggle('opacity-0', !isOpen);
+                    fabOptions.classList.toggle('translate-y-4', !isOpen);
+                    fabOptions.classList.toggle('pointer-events-none', !isOpen);
+                    fabOptions.classList.toggle('opacity-100', isOpen);
+                    fabOptions.classList.toggle('translate-y-0', isOpen);
+                    fabOptions.classList.toggle('pointer-events-auto', isOpen);
+
+                    const icon = fabToggle.querySelector('i');
+                    if (icon) {
+                        icon.style.transform = isOpen ? 'rotate(90deg)' : 'rotate(0deg)';
+                    }
+                };
+
+                fabToggle.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    fabMenu.classList.toggle('menu-open');
+                    updateFabState();
+                });
+
+                document.addEventListener('click', (event) => {
+                    if (!fabMenu.contains(event.target)) {
+                        fabMenu.classList.remove('menu-open');
+                        updateFabState();
+                    }
+                });
+
+                updateFabState();
+            }
+        });
+    </script>
+
+</body>
+</html>

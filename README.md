@@ -1,77 +1,35 @@
-<div align="center">
+# LibraryVid
 
-# 📺 LibraryVid
+Aplicação Flask para organizar, avaliar e analisar uma biblioteca pessoal de
+vídeos e livros.
 
-**Sua biblioteca pessoal de conteúdo: guarde, organize, avalie e compartilhe.**
+## Executar localmente
 
-<img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
-<img src="https://img.shields.io/badge/HTML%2FCSS%2FJS-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML CSS JS" />
-<img src="https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap" />
+Requer Python e `pip`.
 
-<br><br>
-
-<img src="https://img.shields.io/badge/status-em_desenvolvimento-yellow?style=flat-square" alt="Em desenvolvimento" />
-
-</div>
-
----
-
-## 📖 Sobre o projeto
-
-O LibraryVid é uma plataforma para **armazenar, organizar e recomendar conteúdo informativo**, tornando o lazer de fácil acesso e compartilhável.
-
-> 🚧 Projeto em desenvolvimento: novas funcionalidades estão sendo adicionadas.
-
-## 🎯 Objetivos e funcionalidades
-
-- Armazenar, organizar e recomendar conteúdo informativo
-- Tornar o lazer de fácil acesso e compartilhável
-- Aprofundar o conhecimento sobre o conteúdo armazenado
-- Sistema de avaliação personalizado
-
-## 📸 Demonstração
-
-<!-- Adicione prints das telas principais:
-<img src="./docs/tela-inicial.png" alt="Tela inicial" width="80%" />
--->
-
-## 🗂️ Estrutura do projeto
-
-<!-- Cole aqui a árvore de pastas do projeto, por exemplo:
-```
-├── app
-├── static
-├── templates
-└── requirements.txt
-```
--->
-
-## ⚙️ Como executar
-
-```bash
-# 1. Clone o repositório
-git clone https://github.com/arthurandriws-ctrl/LibraryVid.git
-cd LibraryVid
-
-# 2. Instale as dependências
-pip install -r requirements.txt
-
-# 3. Execute a aplicação
-python app.py   # ajuste para o arquivo principal do projeto
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+Copy-Item .env.example .env
+python -m flask --app LibraryVid.app.app run
 ```
 
-<!-- Se usar variáveis de ambiente (.env), explique aqui quais são. -->
+Edite `.env` e defina uma `SECRET_KEY` aleatória. A aplicação usa um banco
+SQLite em `instance/` por padrão. Para análise de vídeos, configure
+`GEMINI_API_KEY`. Para e-mails de recuperação de senha, configure
+`BREVO_API_KEY` e `MAIL_DEFAULT_SENDER`.
 
-## 🗺️ Roadmap
+## Deploy
 
-- [x] Estrutura inicial do projeto
-- [ ] Cadastro e organização de conteúdos
-- [ ] Sistema de avaliação personalizado
-- [ ] Recomendações
-- [ ] Compartilhamento de listas
+Configure as variáveis de ambiente no provedor de hospedagem, sem adicioná-las
+ao Git. Use uma `SECRET_KEY` forte, um banco PostgreSQL gerenciado em
+`DATABASE_URL` e as chaves de API necessárias. O `Procfile` inicia a aplicação
+com Gunicorn. Configure Cloudinary se os uploads precisarem persistir entre
+deploys.
 
-<!-- Ajuste os itens conforme o que já está pronto. -->
+## Testes
 
-## 📬 Contato
-
-Feito por **Arthur Andriws** · [GitHub](https://github.com/arthurandriws-ctrl) · [arthurandriws@gmail.com](mailto:arthurandriws@gmail.com)
+```powershell
+python -m pytest -q
+```

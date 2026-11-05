@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibraryVid</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/clay.css') }}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#EFE7DA',
+                        surface: '#F7F3EB',
+                        surfaceBorder: '#D8D0C1',
+                        primary: '#94946F',
+                        primaryHover: '#777752',
+                        textMuted: '#706F60'
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-white min-h-screen flex flex-col">
+    <header class="border-b border-surfaceBorder bg-background px-8 py-4 flex items-center justify-between">
+        <a href="{{ url_for('homepage', tipo=tipo) }}" class="flex items-center gap-2 text-xl font-bold transition-colors hover:text-primary">
+            <div class="w-8 h-8 bg-primary rounded flex items-center justify-center">
+                <i class="fa-solid fa-play text-white text-sm"></i>
+            </div>
+            LibraryVid
+        </a>
+        <a href="{{ url_for('homepage', tipo=tipo) }}" class="inline-flex items-center gap-2 rounded-lg border border-surfaceBorder bg-surface px-4 py-2 text-sm text-textMuted transition-colors hover:border-primary/60 hover:text-white">
+            <i class="fa-solid fa-arrow-left"></i> Voltar
+        </a>
+    </header>
+
+    <main class="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 p-8">
+        <div class="overflow-hidden rounded-2xl border border-surfaceBorder bg-surface shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
+            <div class="flex flex-col gap-6 p-6 md:flex-row md:p-8">
+                <div class="w-full md:w-72">
+                    {% if video.imagem %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ video.imagem) }}" alt="{{ video.titulo }}" class="h-80 w-full rounded-xl object-cover border border-surfaceBorder bg-surfaceBorder/80 md:h-[420px]">
+                    {% else %}
+                    <div class="flex h-80 w-full items-center justify-center rounded-xl border border-surfaceBorder bg-surfaceBorder/80 text-textMuted md:h-[420px]">
+                        <i class="fa-solid {{ 'fa-book-open' if tipo == 'livro' else 'fa-film' }} text-4xl"></i>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="flex-1 space-y-5">
+                    <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                        <div>
+                            <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">{{ 'Livro cadastrado' if tipo == 'livro' else 'Vídeo cadastrado' }}</p>
+                            <h1 class="mt-2 text-3xl font-bold text-white">{{ video.titulo or 'Sem título' }}</h1>
+                        </div>
+                        <span class="inline-flex w-fit rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium uppercase tracking-wide text-purple-300">
+                            {{ video.genero or '—' }}
+                        </span>
+                    </div>
+
+                    <div class="space-y-2 text-sm text-textMuted">
+                        <p><span class="font-semibold text-white">Autor:</span> {{ video.autor or 'Autor desconhecido' }}</p>
+                        <p>
+                            <span class="font-semibold text-white">Link:</span>
+                            {% if video.link %}
+                            <a href="{{ video.link }}" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">{{ 'Acessar livro' if tipo == 'livro' else 'Assistir agora' }}</a>
+                            {% else %}
+                            <span>Não informado</span>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="rounded-xl border border-surfaceBorder bg-background/40 p-4">
+                        <p class="mb-2 text-[10px] font-semibold uppercase tracking-[0.25em] text-primary">
+                            <i class="fa-solid {{ 'fa-book-open' if tipo == 'livro' else 'fa-robot' }} mr-2"></i> {{ 'Resumo do livro' if tipo == 'livro' else 'Análise da IA' }}
+                        </p>
+                        <div class="whitespace-pre-line text-sm leading-7 text-textMuted">
+                            {{ video.analise or 'Análise da IA ainda não disponível.' }}
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <a href="{{ url_for('editar_video', video_id=video.id, tipo=tipo) }}" class="inline-flex items-center gap-2 rounded-lg bg-surfaceBorder px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-surfaceBorder/80">
+                            <i class="fa-solid fa-pencil"></i> Editar {{ 'livro' if tipo == 'livro' else 'vídeo' }}
+                        </a>
+                        <form action="{{ url_for('deletar_video', video_id=video.id) }}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir este item?');">
+                            <input type="hidden" name="tipo" value="{{ tipo }}">
+                            <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-300 transition-colors hover:bg-red-500/20">
+                                <i class="fa-solid fa-trash"></i> Excluir {{ 'livro' if tipo == 'livro' else 'vídeo' }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if videos_similares %}
+        <section class="rounded-2xl border border-surfaceBorder bg-surface p-6 shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
+            <div class="mb-5 flex items-center justify-between gap-3">
+                <h2 class="text-xl font-bold text-white">{{ 'Livros Similares' if tipo == 'livro' else 'Vídeos Similares' }}</h2>
+                <span class="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-purple-300">
+                    {{ video.genero or 'Geral' }}
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                {% for similar in videos_similares %}
+                <article class="group overflow-hidden rounded-xl border border-surfaceBorder bg-background/40 transition-colors hover:border-primary/50">
+                    <a href="{{ url_for('exibir_analise', video_id=similar.id) }}" class="block">
+                        <div class="h-44 overflow-hidden border-b border-surfaceBorder bg-surfaceBorder/80">
+                            {% if similar.imagem %}
+                            <img src="{{ url_for('static', filename='uploads/' ~ similar.imagem) }}" alt="{{ similar.titulo }}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+                            {% else %}
+                            <div class="flex h-full w-full items-center justify-center text-textMuted">
+                                <i class="fa-solid {{ 'fa-book-open' if tipo == 'livro' else 'fa-film' }} text-3xl"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="space-y-3 p-4">
+                            <div class="flex items-start justify-between gap-2">
+                                <h3 class="line-clamp-2 text-base font-semibold text-white">{{ similar.titulo or 'Sem título' }}</h3>
+                                <span class="whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-2 py-1 text-[9px] font-medium uppercase tracking-wide text-purple-300">
+                                    {{ similar.genero or '—' }}
+                                </span>
+                            </div>
+
+                            <p class="text-sm text-textMuted">{{ similar.autor or 'Autor desconhecido' }}</p>
+                            <p class="line-clamp-3 text-sm leading-6 text-textMuted">
+                                {{ (similar.analise or 'Análise da IA ainda não disponível.')|truncate(120, True, '...') }}
+                            </p>
+                        </div>
+                    </a>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </main>
+</body>
+</html>
